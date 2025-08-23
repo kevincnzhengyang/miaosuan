@@ -1,2 +1,4 @@
-# miaosuan
-miaosuan for personal quantitative investment
+# 妙算
+让AI帮我们算一算，下来该怎么做？
+
+
