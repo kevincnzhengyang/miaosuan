@@ -1,2 +1,6 @@
 # mss_diting
-diting for quote from broker
+妙算服务 谛听 使用券商和其他第三方提供的接口，获取实时行情数据，按照股价、交易量的触发条件，向指定接口汇报。
+
+目前使用的接口：
+- Futu OpenAPI
+

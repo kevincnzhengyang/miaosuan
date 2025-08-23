@@ -1,0 +1,24 @@
+[project]
+name = "mss-diting"
+version = "0.1.0"
+description = "miaosuan service diting"
+authors = [
+    {name = "kevincnzhengyang",email = "kevin.cn.zhengyang@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = "3.13.5"
+dependencies = [
+    "futu-api (>=9.4.5408,<10.0.0)",
+    "fastapi (>=0.116.1,<0.117.0)",
+    "mcp (>=1.13.1,<2.0.0)",
+    "requests (>=2.32.5,<3.0.0)",
+    "click (>=8.2.1,<9.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
