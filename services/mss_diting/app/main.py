@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 10:15:30
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-23 14:06:49
+LastEditTime: 2025-08-25 18:08:12
 FilePath: /mss_diting/app/main.py
 Description:  diting cli entry point
 
@@ -16,7 +16,8 @@ from dotenv import load_dotenv
 from diting.db_sqlite import init_db
 from diting.mode_api import api as fastapi
 from diting.mode_mcp import mcp as mcpserver
-from diting.futu_task import start_futu_task
+from diting.quote_manager import manager
+from diting.quote_futu import FutuEngine
 
 # 加载环境变量
 load_dotenv()
@@ -33,10 +34,17 @@ logger.add(LOG_FILE, rotation="50 MB")
 @click.option('--api', is_flag=True, help='启动API服务')
 @click.option('--mcp', is_flag=True, help='启动MCP服务')
 # def cli(filename, api, mcp):
-async def cli(api, mcp):
+def cli(api, mcp):
     # 初始化数据库
     init_db()
-    await start_futu_task()
+    
+    # 注册多个行情引擎
+    manager.register(FutuEngine())
+    # manager.register(IBEngine())
+    # manager.register(TigerEngine())
+
+    # 启动所有引擎
+    manager.start_all()
 
     if api:
         click.echo(f'API模式开启')
@@ -46,7 +54,9 @@ async def cli(api, mcp):
         mcpserver.run()
     else:
         click.echo(f'没有指定运行模式')
-
+        
+    # 关闭所有
+    manager.stop_all()
 
 if __name__ == '__main__':
     cli()

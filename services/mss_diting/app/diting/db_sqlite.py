@@ -2,19 +2,20 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 12:00:17
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-23 13:46:05
+LastEditTime: 2025-08-25 20:35:59
 FilePath: /mss_diting/app/diting/db_sqlite.py
 Description: Sqlite数据库操作
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
 '''
-import sqlite3
-import os
+
+import os, json, sqlite3
 from typing import Any
 from loguru import logger
 from dotenv import load_dotenv
 
 from .models import Rule, Trigger
+from .quote_rule import validate_rule
 
 
 # 加载环境变量
@@ -40,38 +41,54 @@ def init_db():
     # 创建表
     cur.execute("""CREATE TABLE IF NOT EXISTS rules(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        symbol TEXT, condition TEXT, threshold REAL,
-        webhook_url TEXT, cooldown_sec INTEGER, brokers TEXT, 
-        note TEXT, enabled INTEGER, updated_at TIMESTAMP
+        name TEXT NOT NULL, symbol TEXT NOT NULL, 
+        brokers TEXT NOT NULL, rule_json TEXT NOT NULL,
+        webhook_url TEXT NOT NULL, tag TEXT NOT NULL,
+        note TEXT, enabled INTEGER DEFAULT 1, 
+        updated_at TIMESTAMP
     )""")
     cur.execute("""CREATE TABLE IF NOT EXISTS triggers(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        rule_id INTEGER REFERENCES rules(id),
+        rule_id INTEGER NOT NULL,
         symbol TEXT, message TEXT,
-        ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(rule_id) REFERENCES rules(id)
     )""")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_rules_symbol ON rules(symbol)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_rules_enabled ON rules(enabled)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_triggers_rule_id ON triggers(rule_id)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_triggers_symbol ON triggers(symbol)")
+    # 提交事务并关闭连接
     conn.commit()
     conn.close()
     logger.info("数据库初始化完成")
 
 def add_rule(rule: Rule) -> Any:
+    # 插入数据库前校验规则
+    validate_rule(json.loads(rule.rule_json)) 
+
     conn = sqlite3.connect(DB_FILE)
     cur = conn.cursor()
-    cur.execute("INSERT INTO rules(symbol,condition,threshold,webhook_url,cooldown_sec,note,enabled,updated_at) VALUES(?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
-                (rule.symbol, rule.condition, rule.threshold, rule.webhook_url, rule.cooldown_sec, rule.note, int(rule.enabled)))
+    cur.execute("INSERT INTO rules(name,symbol,brokers,rule_json,webhook_url,tag,note,enabled,updated_at) VALUES(?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
+                (rule.name, rule.symbol, rule.brokers, rule.rule_json, rule.webhook_url, rule.tag, rule.note, int(rule.enabled)))
     conn.commit()
     rule_id = cur.lastrowid
     conn.close()
     return rule_id
 
-def get_rules() -> list[Any]:
+def get_rules(only_valid: bool = True) -> list[Any]:
     conn = sqlite3.connect(DB_FILE)
-    rows = conn.execute("SELECT * FROM rules").fetchall()
+    conn.row_factory = sqlite3.Row
+    if only_valid:
+        rows = conn.execute("SELECT * FROM rules WHERE enabled=1").fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM rules").fetchall()
     conn.close()
     return rows
 
 def get_rules_by_symbol(symbol: str, only_valid: bool = True) -> list[Any]:
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     if only_valid:
         rows = conn.execute("SELECT * FROM rules WHERE symbol=? AND enabled=1", (symbol,)).fetchall()
     else:
@@ -81,14 +98,18 @@ def get_rules_by_symbol(symbol: str, only_valid: bool = True) -> list[Any]:
 
 def get_rule(rule_id: int) -> Any:
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     row = conn.execute("SELECT * FROM rules WHERE id=?", (rule_id,)).fetchone()
     conn.close()
     return row
 
 def update_rule(rule_id: int, rule: Rule) -> Any:
+    # 插入数据库前校验规则
+    validate_rule(json.loads(rule.rule_json)) 
+    
     conn = sqlite3.connect(DB_FILE)
-    conn.execute("UPDATE rules SET symbol=?,condition=?,threshold=?,webhook_url=?,cooldown_sec=?,note=?,enabled=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
-                 (rule.symbol, rule.condition, rule.threshold, rule.webhook_url, rule.cooldown_sec, rule.note, int(rule.enabled), rule_id))
+    conn.execute("UPDATE rules SET name=?,symbol=?,brokers=?,rule_json=?,webhook_url=?,tag=?,note=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                 (rule.name, rule.symbol, rule.brokers, rule.rule_json, rule.webhook_url, rule.tag, rule.note, rule_id))
     conn.commit()
     conn.close()
     return rule_id
@@ -117,18 +138,21 @@ def add_trigger(trigger: Trigger) -> Any:
 
 def get_triggers(limit: int = 100) -> list[Any]:
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM triggers ORDER BY ts DESC LIMIT ?", (limit,)).fetchall()
     conn.close()
     return rows
 
 def get_triggers_by_rule_id(rule_id: int, limit: int = 100) -> list[Any]:
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM triggers WHERE rule_id=? ORDER BY ts DESC LIMIT ?", (rule_id, limit)).fetchall()
     conn.close()
     return rows
 
 def get_triggers_by_symbol(symbol: str, limit: int = 100) -> list[Any]:
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM triggers WHERE symbol=? ORDER BY ts DESC LIMIT ?", (symbol, limit)).fetchall()
     conn.close()
     return rows
