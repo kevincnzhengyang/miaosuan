@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 08:47:24
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-25 20:47:03
+LastEditTime: 2025-08-26 16:10:19
 FilePath: /mss_diting/app/diting/quote_futu.py
 Description: Futu行情引擎
 
@@ -11,6 +11,7 @@ Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
 
 import asyncio, os
 import pandas as pd
+from pathlib import Path
 from loguru import logger
 from dotenv import load_dotenv
 from futu import OpenQuoteContext, SubType
@@ -21,7 +22,8 @@ from .models import QuoteOHLC
 
 
 # 加载环境变量
-load_dotenv(dotenv_path="../.env")
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".." / ".env")
 FUTU_API_HOST = os.getenv("FUTU_API_HOST", "127.0.0.1")
 FUTU_API_PORT = int(os.getenv("FUTU_API_PORT", "21111"))
 FUTU_INTERVAL = int(os.getenv("FUTU_INTERVAL", "60"))  # 行情轮询间隔，单位秒

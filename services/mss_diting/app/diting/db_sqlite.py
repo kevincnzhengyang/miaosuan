@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 12:00:17
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-25 20:35:59
+LastEditTime: 2025-08-26 16:09:21
 FilePath: /mss_diting/app/diting/db_sqlite.py
 Description: Sqlite数据库操作
 
@@ -10,6 +10,7 @@ Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
 '''
 
 import os, json, sqlite3
+from pathlib import Path
 from typing import Any
 from loguru import logger
 from dotenv import load_dotenv
@@ -19,7 +20,8 @@ from .quote_rule import validate_rule
 
 
 # 加载环境变量
-load_dotenv(dotenv_path="../.env")
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".." / ".env")
 DB_FILE = os.getenv("DB_FILE", "diting.db")
 
 # 初始化数据库

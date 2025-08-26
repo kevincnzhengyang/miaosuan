@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 07:47:28
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-25 20:52:44
+LastEditTime: 2025-08-25 23:19:20
 FilePath: /mss_diting/app/diting/quote_base.py
 Description: 行情基类
 
@@ -70,7 +70,7 @@ class BaseQuoteEngine(ABC):
                 # 这里可以添加调用 webhook + tag 的逻辑
                 try:
                     payload = {
-                        "rule_name": rule['name'],
+                        "name": rule['name'],
                         "symbol": quote.symbol,
                         "ohlc": ohlc,
                         "tag": rule['tag'],

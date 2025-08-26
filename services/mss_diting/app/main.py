@@ -2,15 +2,15 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 10:15:30
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-25 18:08:12
+LastEditTime: 2025-08-26 16:08:12
 FilePath: /mss_diting/app/main.py
 Description:  diting cli entry point
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
 '''
 
-import os, click, asyncio
-import uvicorn
+import os, click, uvicorn
+from pathlib import Path
 from loguru import logger
 from dotenv import load_dotenv
 from diting.db_sqlite import init_db
@@ -20,7 +20,9 @@ from diting.quote_manager import manager
 from diting.quote_futu import FutuEngine
 
 # 加载环境变量
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".env")
+
 LOG_FILE = os.getenv("LOG_FILE", "diting.log")
 API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "21000"))
