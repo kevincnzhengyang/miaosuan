@@ -2,16 +2,17 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 23:06:13
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-26 18:34:20
+LastEditTime: 2025-08-27 21:02:19
 FilePath: /mss_chuanyin/app/chuanyin/line_bot.py
 Description: line bot integration
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
 '''
 
-import os, asyncio, httpx
+import os, asyncio
 from loguru import logger
 from dotenv import load_dotenv
+from pathlib import Path
 from linebot import LineBotApi
 from linebot.models import FlexSendMessage
 
@@ -19,7 +20,8 @@ from .sqlite_db import list_subscribers
 from .models import Message
 
 # 加载环境变量
-load_dotenv(dotenv_path="../.env")
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".." / ".env")
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN", "")
 
 

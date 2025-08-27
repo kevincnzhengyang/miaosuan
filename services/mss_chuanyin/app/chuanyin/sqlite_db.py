@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:55:10
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-26 16:22:36
+LastEditTime: 2025-08-27 21:01:38
 FilePath: /mss_chuanyin/app/chuanyin/sqlite_db.py
 Description: 
 
@@ -10,10 +10,12 @@ Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
 '''
 import os, sqlite3
 from loguru import logger
+from pathlib import Path
 from dotenv import load_dotenv
 
 # 加载环境变量
-load_dotenv(dotenv_path="../.env")
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".." / ".env")
 DB_FILE = os.getenv("DB_FILE", "chuanyin.db")
 
 
