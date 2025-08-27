@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 12:00:17
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-26 16:09:21
+LastEditTime: 2025-08-27 11:59:54
 FilePath: /mss_diting/app/diting/db_sqlite.py
 Description: Sqlite数据库操作
 
@@ -85,6 +85,13 @@ def get_rules(only_valid: bool = True) -> list[Any]:
         rows = conn.execute("SELECT * FROM rules WHERE enabled=1").fetchall()
     else:
         rows = conn.execute("SELECT * FROM rules").fetchall()
+    conn.close()
+    return rows
+
+def get_updated_rules(since: str) -> list[Any]:
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("SELECT * FROM rules WHERE updated_at > ? AND enabled=1", (since,)).fetchall()
     conn.close()
     return rows
 
