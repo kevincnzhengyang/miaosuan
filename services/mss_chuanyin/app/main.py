@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:25:44
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-26 16:24:44
+LastEditTime: 2025-08-28 19:32:04
 FilePath: /mss_chuanyin/app/main.py
 Description: 
 
@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Shutting down...")
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="Chuanyin Service")
 
 @app.post("/subscribe")
 async def subscribe(sub: Subscriber):
