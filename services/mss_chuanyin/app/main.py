@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:25:44
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-28 19:32:04
+LastEditTime: 2025-09-05 10:17:04
 FilePath: /mss_chuanyin/app/main.py
 Description: 
 
@@ -24,11 +24,12 @@ from chuanyin.models import Subscriber, Message
 # 加载环境变量
 load_dotenv()
 LOG_FILE = os.getenv("LOG_FILE", "chuanyin.log")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
 API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "21000"))
 
 # 记录日志到文件，日志文件超过500MB自动轮转
-logger.add(LOG_FILE, rotation="50 MB")
+logger.add(LOG_FILE, level=LOG_LEVEL, rotation="50 MB", retention=5)
 
 
 # ===================
