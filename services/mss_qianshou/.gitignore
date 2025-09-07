@@ -218,3 +218,6 @@ __marimo__/
 *.env.*
 envs/
 env_files/ 
+
+# Indicators
+*.json
