@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 12:00:17
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-08-27 11:59:54
+LastEditTime: 2025-09-04 19:50:55
 FilePath: /mss_diting/app/diting/db_sqlite.py
 Description: Sqlite数据库操作
 
@@ -43,7 +43,7 @@ def init_db():
     # 创建表
     cur.execute("""CREATE TABLE IF NOT EXISTS rules(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL, symbol TEXT NOT NULL, 
+        name TEXT NOT NULL UNIQUE, symbol TEXT NOT NULL, 
         brokers TEXT NOT NULL, rule_json TEXT NOT NULL,
         webhook_url TEXT NOT NULL, tag TEXT NOT NULL,
         note TEXT, enabled INTEGER DEFAULT 1, 
