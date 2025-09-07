@@ -1,0 +1,22 @@
+<!--
+ * @Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
+ * @Date: 2025-09-07 10:39:31
+ * @LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
+ * @LastEditTime: 2025-09-07 10:41:33
+ * @FilePath: /miaosuan/dashboard/templates/index.html
+ * @Description: 
+ * 
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
+-->
+{% extends "base.html" %}
+{% block title %}任务列表{% endblock %}
+{% block content %}
+<h1 class="text-2xl mb-4">任务列表</h1>
+<ul class="space-y-2">
+    {% for task in tasks %}
+    <li>
+        <a href="/tasks/{{ task }}" class="text-green-400 hover:underline">{{ task }}</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

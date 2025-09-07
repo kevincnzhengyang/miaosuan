@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>量化多任务对比</title>
+    <link href="/static/tailwind.css" rel="stylesheet">
+    <script src="/static/plotly.min.js"></script>
+</head>
+<body class="bg-gray-100 p-4">
+
+<div class="container mx-auto">
+    <h1 class="text-2xl font-bold mb-4">多任务量化回测对比</h1>
+
+    <!-- 任务选择 -->
+    <div class="mb-4 flex items-center">
+        <label class="mr-2 font-semibold">选择任务:</label>
+        <select id="taskSelect" multiple class="border p-2 w-64">
+            <!-- 选项动态加载 -->
+        </select>
+        <button id="addTaskBtn" class="bg-blue-500 text-white px-3 py-1 ml-2 rounded">添加任务</button>
+    </div>
+
+    <!-- 时间滑块 -->
+    <div class="mb-4">
+        <label class="mr-2 font-semibold">全局时间滑块:</label>
+        <input type="range" id="timeSlider" min="0" max="100" value="100" class="w-full">
+        <span id="timeLabel" class="ml-2"></span>
+    </div>
+
+    <!-- 绘图容器 -->
+    <div id="plot" class="bg-white p-4 rounded shadow" style="height:600px;"></div>
+</div>
+
+<script>
+    const taskSelect = document.getElementById("taskSelect");
+    const addTaskBtn = document.getElementById("addTaskBtn");
+    const timeSlider = document.getElementById("timeSlider");
+    const timeLabel = document.getElementById("timeLabel");
+    const plotDiv = document.getElementById("plot");
+
+    // 后端提供 /tasks 接口返回所有任务
+    fetch("/").then(res => res.json()).then(data => {
+        data.tasks.forEach(task=>{
+            let opt = document.createElement("option");
+            opt.value = task;
+            opt.innerText = task;
+            taskSelect.appendChild(opt);
+        });
+    });
+
+    let windows = {}; // window_id -> {task_id, ws, equity, signals}
+    const colors = ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2"];
+
+    function addTask(task_id){
+        const window_id = crypto.randomUUID();
+        const ws = new WebSocket(`ws://${location.host}/ws/${window_id}/${task_id}`);
+        windows[window_id] = {task_id, ws, equity: [], signals: [], color: colors[Object.keys(windows).length % colors.length]};
+
+        ws.onmessage = function(event){
+            const data = JSON.parse(event.data);
+            windows[window_id].equity = data.equity;
+            windows[window_id].signals = data.signals;
+            updatePlot();
+        };
+
+        ws.onopen = function(){
+            console.log(`WebSocket connected: ${task_id}`);
+        };
+    }
+
+    addTaskBtn.onclick = function(){
+        const selected = Array.from(taskSelect.selectedOptions).map(o=>o.value);
+        selected.forEach(task_id=>{
+            if(!Object.values(windows).some(w=>w.task_id===task_id)){
+                addTask(task_id);
+            }
+        });
+    };
+
+    // 更新时间滑块
+    timeSlider.oninput = function(){
+        const pct = timeSlider.value;
+        timeLabel.innerText = `显示至 ${pct}%`;
+        for(let w of Object.values(windows)){
+            w.ws.send(JSON.stringify({last_time:pct}));
+        }
+        updatePlot();
+    };
+
+    // 更新 Plotly 绘图
+    function updatePlot(){
+        const plotData = [];
+        for(let w of Object.values(windows)){
+            const equity = w.equity;
+            const signals = w.signals;
+            if(equity.length===0) continue;
+
+            const pct = timeSlider.value;
+            const maxIndex = Math.floor(equity.length * pct/100);
+            const eqSlice = equity.slice(0,maxIndex);
+            const sigSlice = signals.slice(0,maxIndex);
+
+            // 权益曲线
+            plotData.push({
+                x: eqSlice.map(d=>d.datetime),
+                y: eqSlice.map(d=>d.equity),
+                mode: "lines",
+                name: `${w.task_id} 权益`,
+                line: {color: w.color, width:2}
+            });
+
+            // 信号点
+            const buy = sigSlice.filter(d=>d.signal>0);
+            const sell = sigSlice.filter(d=>d.signal<0);
+
+            plotData.push({
+                x: buy.map(d=>d.datetime),
+                y: buy.map(d=>d.price),
+                mode: "markers",
+                name: `${w.task_id} 买`,
+                marker: {color: w.color, symbol:"triangle-up", size:8}
+            });
+            plotData.push({
+                x: sell.map(d=>d.datetime),
+                y: sell.map(d=>d.price),
+                mode: "markers",
+                name: `${w.task_id} 卖`,
+                marker: {color: w.color, symbol:"triangle-down", size:8}
+            });
+        }
+
+        const layout = {
+            margin: {t:30},
+            xaxis: {title: "时间"},
+            yaxis: {title: "价格/权益"},
+            legend: {orientation:"h", y:-0.2},
+            hovermode: "closest"
+        };
+
+        Plotly.react(plotDiv, plotData, layout, {responsive:true});
+    }
+
+</script>
+</body>
+</html>

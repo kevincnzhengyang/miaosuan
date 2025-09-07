@@ -1,0 +1,37 @@
+<!--
+ * @Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
+ * @Date: 2025-09-07 12:14:41
+ * @LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
+ * @LastEditTime: 2025-09-07 12:16:56
+ * @FilePath: /miaosuan/app/templates/stocks.html
+ * @Description: 
+ * 
+ * Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
+-->
+{% extends "base.html" %}
+
+{% block title %}股票列表{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">股票列表</h1>
+<table class="min-w-full border">
+    <thead>
+        <tr class="bg-gray-200">
+            <th class="px-4 py-2">代码</th>
+            <th class="px-4 py-2">名称</th>
+            <th class="px-4 py-2">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+        <tr class="border-b">
+            <td class="px-4 py-2">{{ stock.symbol }}</td>
+            <td class="px-4 py-2">{{ stock.name }}</td>
+            <td class="px-4 py-2">
+                <a class="text-blue-600 hover:underline" href="/financials/{{ stock.symbol }}">查看财报</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
