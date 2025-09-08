@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 10:15:30
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-05 10:16:33
+LastEditTime: 2025-09-08 10:35:00
 FilePath: /mss_diting/app/main.py
 Description:  diting cli entry point
 
@@ -28,7 +28,6 @@ API_HOST = os.getenv("API_HOST", "0.0.0.0")
 API_PORT = int(os.getenv("API_PORT", "21000"))
 
 # 记录日志到文件，日志文件超过500MB自动轮转
-logger.add(LOG_FILE, rotation="50 MB")
 logger.add(LOG_FILE, level=LOG_LEVEL, rotation="50 MB", retention=5)
 
 
