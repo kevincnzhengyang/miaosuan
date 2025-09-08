@@ -1,21 +1,43 @@
+import os, qlib
 import pandas as pd
-from core.workflow import TaskWorkflowQLib
+from loguru import logger
+from dotenv import load_dotenv
+from pathlib import Path
+from qlib.constant import REG_CN
 from concurrent.futures import ThreadPoolExecutor
 
-# 任务列表，每个任务独立 task_id 和数据文件
-tasks = [
-    {"task_id": "task_001", "file": "data/raw/AAPL.parquet"},
-    {"task_id": "task_002", "file": "data/raw/MSFT.parquet"},
-    {"task_id": "task_003", "file": "data/raw/GOOG.parquet"},
-]
+from core.workflow import TaskWorkflowQLib
+from core.task_model import load_tasks
 
-def run_task(t):
-    df = pd.read_parquet(t["file"])
-    workflow = TaskWorkflowQLib(t["task_id"], df)
-    metrics = workflow.run()
-    print(f"{t['task_id']} 完成, metrics={metrics}")
+# 加载环境变量
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".env")
+LOG_FILE = os.getenv("LOG_FILE", "qianji.log")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+DATA_DIR = os.path.expanduser(os.getenv("DATA_DIR", "~/Quanter/qlib_data"))
+RECS_DIR = os.path.join(DATA_DIR, "recs")
 
-if __name__=="__main__":
+# 初始化路径
+os.makedirs(RECS_DIR, exist_ok=True)
+
+# 记录日志到文件，日志文件超过500MB自动轮转
+logger.add(LOG_FILE, level=LOG_LEVEL, rotation="50 MB", retention=5)
+
+# 初始化QLib
+qlib.init(provider_uri=DATA_DIR, region=REG_CN)
+
+
+def _execute_task(t):
+    TaskWorkflowQLib(DATA_DIR, RECS_DIR).run(
+        t['task_id'], t['model'], t['instrument'], 
+        t['start'], t['end'])
+
+def run_tasks() -> None:
+    res, tasks = load_tasks()
+    if not res or 0 == len(tasks):
+        logger.error("加载任务文件失败！")
+        return
+    
     # 多任务并行执行
-    with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
-        executor.map(run_task, tasks)
+    with ThreadPoolExecutor(max_workers = len(tasks)) as executor:
+        executor.map(_execute_task, tasks)

@@ -1,64 +1,60 @@
 import os
 import pandas as pd
-import qlib
+from loguru import logger
 from qlib.workflow import R
-from core.factors import alpha158, alpha360
-from core.model import MLModel
-from core.backtest import backtest, calculate_metrics
+from qlib.backtest import backtest
+from qlib.backtest.executor import SimulatorExecutor
 
-qlib.init(provider_uri="~/.qlib/qlib_data/cn", region="cn")
+from .factory import ModelFactory
+from .data_manager import DataManager
 
 class TaskWorkflowQLib:
-    def __init__(self, task_id: str, df: pd.DataFrame):
-        self.task_id = task_id
-        self.df = df.copy()
-        self.artifact_dir = os.path.join("artifacts", self.task_id)
-        os.makedirs(self.artifact_dir, exist_ok=True)
+    def __init__(self, data_dir: str, recs_dir: str):
+        self.dm = DataManager(data_dir, recs_dir)
 
-    def run(self):
-        # 启动实验
-        with R.start(experiment_name=self.task_id) as r:
-            recorder = R.get_recorder()
+    def run(self, task_id: str, model_name: str, instrument: str, 
+            start_time: str, end_time: str):
+        self.dm.set_task_id(task_id=task_id)
+        # 1. 加载市场数据
+        df = self.dm.load_market_data(instrument=instrument, 
+                                      start_time=start_time, 
+                                      end_time=end_time)
+        logger.debug(f"加载数据成功 {task_id}:{instrument} {start_time}-{end_time}, 总条数 {len(df)}")
 
-            # 1️⃣ 计算因子
-            factor1 = alpha158(self.df)
-            factor2 = alpha360(self.df)
-            factors = pd.merge(factor1, factor2, on="datetime")
+        # 2. 模型训练 & 预测
+        model = ModelFactory.get_model(model_name)
+        model.train(df)
+        pred_df = model.predict(df)
+        logger.debug(f"模型训练完成 {task_id}:{instrument} # {model_name}")
 
-            # 保存因子
-            factor_file = os.path.join(self.artifact_dir, "factors.parquet")
-            factors.to_parquet(factor_file)
-            recorder.log_artifact(factor_file, artifact_path="factors")
+        # 3. 构建回测 executor
+        executor = SimulatorExecutor(
+            time_per_step="day",
+            start_time=start_time,
+            end_time=end_time,
+            generate_portfolio_metrics=True,
+        )
 
-            # 2️⃣ 模型训练
-            X = factors[['alpha158', 'alpha360']]
-            y = self.df['close'].pct_change().fillna(0)
+        # 4. 回测
+        strategy_name = "topk"
+        port_metrics, _ = backtest(
+            start_time=start_time,
+            end_time=end_time,
+            strategy=strategy_name,
+            executor=executor,
+            benchmark="SH000300",
+            account=1e7,
+            pos_type="Position"
+        )
+        logger.debug(f"回测完成 {task_id}:{instrument}")
 
-            model = MLModel()
-            model.train(X, y)
+        # 7. 保存结果和实验记录
+        with R.start(experiment_name=task_id):
+            self.dm.save_to_parquet(df=pred_df, name="pred")
+            R.log_artifact(os.path.join(self.dm.task_dir, "pred.parquet"))
+            self.dm.save_to_parquet(df=pd.DataFrame(port_metrics), name="report")
+            R.log_artifact(os.path.join(self.dm.task_dir, "report.parquet"))
+            R.log_metrics(port_metrics)
 
-            # 3️⃣ 生成信号
-            # 直接生成 DataFrame 避免类型检查问题
-            signals = pd.DataFrame({
-                "datetime": factors['datetime'],
-                "signal": pd.Series(model.generate_signal(pd.Series(model.predict(X))), index=factors.index),
-                "price": self.df['close']
-            })
-
-            # 保存 signals
-            signals_file = os.path.join(self.artifact_dir, "signals.parquet")
-            signals.to_parquet(signals_file)
-            recorder.log_artifact(signals_file, artifact_path="signals")
-
-            # 4️⃣ 回测生成 equity
-            equity_df = backtest(signals)
-            equity_file = os.path.join(self.artifact_dir, "equity.parquet")
-            equity_df.to_parquet(equity_file)
-            recorder.log_artifact(equity_file, artifact_path="equity")
-
-            # 5️⃣ 记录指标
-            metrics = calculate_metrics(equity_df)
-            recorder.log_metrics(**metrics)
-
-            print(f"[{self.task_id}] 完成: metrics={metrics}")
-            return metrics
+        logger.info(f"任务完成 {task_id}:{instrument}\n{port_metrics}")
+        return port_metrics

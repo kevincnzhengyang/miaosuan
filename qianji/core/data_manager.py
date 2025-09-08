@@ -1,50 +1,26 @@
-'''
-Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-Date: 2025-09-07 11:01:53
-LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-07 11:02:46
-FilePath: /miaosuan/qianji/core/data_manager.py
-Description: 
-
-Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
-'''
 import os
 import pandas as pd
-from pathlib import Path
-import shutil
-import datetime
+from qlib.data import D
 
-RAW_DIR = "data/raw"
-ARTIFACT_DIR = "artifacts"
 
 class DataManager:
-    def __init__(self, task_id: str):
-        self.task_id = task_id
-        self.task_path = Path(ARTIFACT_DIR)/task_id
-        self.task_path.mkdir(parents=True, exist_ok=True)
+    def __init__(self, data_dir: str, recs_dir: str):
+        self.data_dir = data_dir
+        self.recs_dir = recs_dir
+        self.task_dir = ""
+    
+    def set_task_id(self, task_id: str):
+        self.task_dir = os.path.join(self.recs_dir, task_id)
+        os.makedirs(self.task_dir, exist_ok=True)
 
-    def load_bin(self, symbol: str):
-        # 假设 QLib BIN 数据转换成 Parquet
-        bin_path = Path(RAW_DIR)/f"{symbol}.bin"
-        if not bin_path.exists():
-            raise FileNotFoundError(f"{bin_path} not found")
-        df = pd.read_parquet(bin_path)
+    def load_market_data(self, instrument: str, 
+                         start_time: str, end_time: str):
+        fields = ["$close", "$volume"]
+        df = D.features(instruments=[instrument], 
+                        fields=fields, 
+                        start_time=start_time, 
+                        end_time=end_time)
         return df
 
-    def save_artifact(self, name: str, df: pd.DataFrame):
-        path = self.task_path/f"{name}.parquet"
-        df.to_parquet(path)
-        return path
-
-    def save_metrics(self, metrics: dict):
-        import json
-        path = self.task_path/"stats.json"
-        with open(path,"w") as f:
-            json.dump(metrics,f,indent=4)
-        return path
-
-    def backup_task(self):
-        version = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        backup_path = Path(ARTIFACT_DIR)/f"{self.task_id}_{version}"
-        shutil.copytree(self.task_path, backup_path)
-        return backup_path
+    def save_to_parquet(self, df: pd.DataFrame, name: str):
+        df.to_parquet(os.path.join(self.task_dir, f"{name}.parquet"))
