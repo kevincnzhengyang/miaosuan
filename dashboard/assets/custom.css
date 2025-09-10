@@ -1,0 +1,15 @@
+
+/* 只影响 stock-table 里的链接 */
+#stock-table a {
+    pointer-events: none;    /* 禁止默认跳转 */
+    cursor: pointer;         /* 鼠标显示手型 */
+    color: #0d6efd;          /* Bootstrap 蓝色 */
+    text-decoration: underline;
+}
+
+/* 图片列高度保持一致 */
+#stock-table img {
+    height: 32px;
+    width: 32px;
+    object-fit: contain;
+}

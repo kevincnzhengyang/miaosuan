@@ -1,0 +1,9 @@
+[
+    {
+        "task_id": "task_001",
+        "model": "lightgbm",
+        "instrument": "00700",
+        "start": "2020-01-01",
+        "end": "2020-12-31"
+    }
+]
