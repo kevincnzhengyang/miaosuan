@@ -3,7 +3,9 @@
         "task_id": "task_001",
         "model": "lightgbm",
         "instrument": "00700",
-        "start": "2020-01-01",
-        "end": "2020-12-31"
+        "train_start": "2020-01-01",
+        "train_end": "2020-12-31",
+        "backtest_start": "2025-01-01",
+        "backtest_end": "2025-12-31"
     }
 ]

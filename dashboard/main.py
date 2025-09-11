@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 18:01:27
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-10 21:45:42
-FilePath: /miaosuan/app/main.py
+LastEditTime: 2025-09-11 12:06:39
+FilePath: /miaosuan/dashboard/main.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -36,7 +36,7 @@ navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink("关注股票", href="/")),
         dbc.NavItem(dbc.NavLink("财务报表", href="/financials")),
-        dbc.NavItem(dbc.NavLink("量化分析", href="/analysis")),
+        dbc.NavItem(dbc.NavLink("量化分析", href="/tasks")),
     ]
 )
 

@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 21:25:09
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-10 21:25:53
-FilePath: /miaosuan/app/layout.py
+LastEditTime: 2025-09-11 12:07:02
+FilePath: /miaosuan/dashboard/layout.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 

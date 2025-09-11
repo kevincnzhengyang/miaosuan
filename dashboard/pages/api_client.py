@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-07 12:14:12
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-10 20:32:44
+LastEditTime: 2025-09-11 22:02:24
 FilePath: /miaosuan/dashboard/pages/api_client.py
 Description: 
 
@@ -21,7 +21,8 @@ from loguru import logger
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".." / ".env")
 QIANSHOU_URL = os.getenv("QIANSHOU_URL", "http://127.0.0.1:23000")
-
+TASK_FILE = os.getenv("TASK_FILE", "tasks.json")  # 任务定义文件
+TASK_FILE = os.path.join(BASE_DIR, "..", TASK_FILE)
 
 class DateRangeModel(BaseModel):
     start: Optional[date] = None
@@ -75,9 +76,25 @@ def get_stock_list() -> list:
             s['note'].append(note)
         stocks.append(s)
     return stocks
+        
+def get_stocks_code() -> list:
+    """获取股票列表"""
+    resp = requests.get(f"{QIANSHOU_URL}/equities")
+    if resp.status_code != 200:
+        return []
+    # 假设返回列表 [{'symbol': 'AAPL', 'market': 'US', 'note': ''}, ...]
+    return [s['symbol'] for s in resp.json()]
 
-def get_financial_report(symbol: str, range: DateRangeModel):
+def get_financial_report(symbol: str, range: DateRangeModel) -> dict:
     """获取财报数据"""
-    resp = requests.post(f"{QIANSHOU_URL}/finance/{symbol}", 
-                         data=range.model_dump())
-    return resp.json()  # 假设返回字典形式
+    resp = requests.post(f"{QIANSHOU_URL}/equity/finance", 
+                         params={"symbol": symbol},
+                         json=range.model_dump(mode="json"))
+    if resp.status_code != 200:
+        return dict()
+    else:
+        return resp.json()  # 假设返回字典形式
+
+def get_tasks(symbol: str) -> list:
+    with open(TASK_FILE, 'r', encoding='utf-8') as file:
+        return [task for task in json.load(file) if task['instrument'] == symbol]
