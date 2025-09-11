@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 19:44:34
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-11 22:09:53
+LastEditTime: 2025-09-11 22:26:39
 FilePath: /miaosuan/dashboard/pages/page_tasks.py
 Description: 
 
@@ -34,7 +34,17 @@ layout = dbc.Container([
         ), width=3),
 
         dbc.Col(dbc.Button("查询", id="query-button", color="primary"), width="auto", className="me-2"),
-        dbc.Col(dbc.Button("分析", id="quant-button", color="success"), width="auto")
+        # dbc.Col(dbc.Button("分析", id="quant-button", color="success"), width="auto")
+
+        dbc.Col(
+            html.A(
+                dbc.Button("分析", id="analyze-btn", color="success", outline=True),
+                id="analyze-link",
+                href="",
+                target="_blank"  # 新开页面
+            ),
+            width="auto"
+        ),
     ], className="mb-3"),
 
     html.Div(id="tasks-output")
@@ -113,11 +123,14 @@ def query_tasks_data(n_clicks, code):
     except Exception as e:
         return html.P(f"请求出错: {e}")
 
-# 回调函数
+# 2️⃣ 分析按钮：生成跳转链接
 @dash.callback(
-    Input("quant-button", "n_clicks"),
+    Output("analyze-link", "href"),
+    Input("analyze-btn", "n_clicks"),
     State("stock-code-dropdown2", "value"),
     prevent_initial_call=True
 )
-def quant_analyze_data(n_clicks, code):
-    print(f"analyze {code}")
+def open_analysis(n_clicks, code):
+    if not code:
+        return "/details"
+    return f"/details?code={code}"
