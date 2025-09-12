@@ -1,0 +1,58 @@
+{
+  "set_name": "basic_tech_set",
+  "description": "常见技术指标",
+  "indicators": [
+    {
+      "name": "RSI14",
+      "formula": "RSI(CLOSE, 14)"
+    },
+    {
+      "name": "KDJ_K",
+      "formula": "KDJ(HIGH, LOW, CLOSE, 5, 3, 3)[0]"
+    },
+    {
+      "name": "KDJ_D",
+      "formula": "KDJ(HIGH, LOW, CLOSE, 5, 3, 3)[1]"
+    },
+    {
+      "name": "MACD_DIF",
+      "formula": "MACD(CLOSE, 12, 26, 9)[0]"
+    },
+    {
+      "name": "MACD_DEA",
+      "formula": "MACD(CLOSE, 12, 26, 9)[1]"
+    },
+    {
+      "name": "MACD_BAR",
+      "formula": "MACD(CLOSE, 12, 26, 9)[2]"
+    },
+    {
+      "name": "OBV",
+      "formula": "OBV(CLOSE,VOL)"
+    },
+    {
+      "name": "CCI20",
+      "formula": "CCI(HIGH, LOW, CLOSE, 20)"
+    },
+    {
+      "name": "MFI14",
+      "formula": "MFI(HIGH, LOW, CLOSE, VOL, 14)"
+    },
+    {
+      "name": "BOLL_UPPER",
+      "formula": "BBANDS(CLOSE, 20, 2, 2, 0)[0]"
+    },
+    {
+      "name": "BOLL_MIDDLE",
+      "formula": "BBANDS(CLOSE, 20, 2, 2, 0)[1]"
+    },
+    {
+      "name": "BOLL_LOWER",
+      "formula": "BBANDS(CLOSE, 20, 2, 2, 0)[2]"
+    },
+    {
+      "name": "SAR",
+      "formula": "SAR(HIGH, LOW, 0.02, 0.2)"
+    }
+  ]
+}

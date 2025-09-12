@@ -1,0 +1,36 @@
+{
+  "set_name": "hly_gravity_lines",
+  "description": "胡立阳地心引力线指标",
+  "indicators": [
+    {
+      "name": "HLY_GRAV",
+      "description": "胡立阳地心引力线",
+      "formula": "(MA(CLOSE, 30) + MA(CLOSE, 72)) / 2"
+    },
+    {
+      "name": "HLY_ATT_UPPER",
+      "description": "胡立阳地心引力带上限",
+      "formula": "HLY_GRAV * 1.1"
+    },
+    {
+      "name": "HLY_ATT_LOWER",
+      "description": "胡立阳地心引力带下限",
+      "formula": "HLY_GRAV * 0.9"
+    },
+    {
+      "name": "HLY_ESC_UPPER",
+      "description": "胡立阳地心散逸上限",
+      "formula": "HLY_GRAV * 1.2"
+    },
+    {
+      "name": "HLY_ESC_LOWER",
+      "description": "胡立阳地心散逸下限",
+      "formula": "HLY_GRAV * 0.8"
+    },
+    {
+      "name": "HLY_VMA5_II",
+      "description": "突破引力带标志性成交量",
+      "formula": "MA(VOL, 5) * 2"
+    }
+  ]
+}

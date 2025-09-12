@@ -1,0 +1,71 @@
+{
+  "set_name": "tire_set",
+  "description": "基础数据指标",
+  "indicators": [
+    {
+      "name": "MA5",
+      "formula": "MA(CLOSE, 5)"
+    },
+    {
+      "name": "MA10",
+      "formula": "MA(CLOSE, 10)"
+    },
+    {
+      "name": "MA20",
+      "formula": "MA(CLOSE, 20)"
+    },
+    {
+      "name": "ATR14",
+      "description": "平均真实波动率, 周期14",
+      "formula": "ATR(HIGH, LOW, CLOSE, 14)"
+    },
+    {
+      "name": "VMA5",
+      "formula": "MA(VOL, 5)"
+    },
+    {
+      "name": "VMA10",
+      "formula": "MA(VOL, 10)"
+    },
+    {
+      "name": "VVLT20",
+      "description": "交易量移动标准差, 周期20",
+      "formula": "STD(VOL, 20)"
+    },
+    {
+      "name": "VVLT20_N",
+      "description": "标准化的交易量移动标准差, 周期20",
+      "formula": "STD(VOL, 20) / MA(VOL, 20)"
+    },
+    {
+      "name": "VOSL",
+      "description": "交易量振荡指标, 周期5, 20",
+      "formula": "(MA(VOL, 5) - MA(VOL, 20)) / MA(VOL, 20)"
+    },
+    {
+      "name": "PRET",
+      "description": "收盘价 1 日对数收益",
+      "formula": "LOG(CLOSE / REF(CLOSE, 1))"
+    },
+    {
+      "name": "PRET_VLT20",
+      "description": "收盘价对数收益的 20 日波动率",
+      "formula": "STD(LOG(CLOSE / REF(CLOSE, 1)), 20)"
+    },
+    {
+      "name": "PRET_VLT20_N",
+      "description": "标准化收盘价对数收益的 20 日波动率",
+      "formula": "STD(LOG(CLOSE / REF(CLOSE, 1)), 20) / MA(ABS(LOG(CLOSE / REF(CLOSE, 1))), 20)"
+    },
+    {
+      "name": "PCT_CHG",
+      "description": "价格涨跌幅",
+      "formula": "(CLOSE - REF(CLOSE, 1)) / REF(CLOSE, 1) * 100"
+    },
+    {
+      "name": "PCT_AMP",
+      "description": "价格日内振幅",
+      "formula": "(HIGH - LOW) / LOW * 100"
+    }
+  ]
+}
