@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:25:44
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-05 10:17:04
+LastEditTime: 2025-09-12 17:54:34
 FilePath: /mss_chuanyin/app/main.py
 Description: 
 
@@ -58,7 +58,7 @@ async def unsubscribe(user_id: str):
 async def get_subscribers():
     return list_subscribers()
 
-@app.post("/diting")
+@app.post("/notify")
 async def notify(msg: Message):
     tel_res = await telegram_broadcast(msg)
     line_res = await line_broadcast(msg)
