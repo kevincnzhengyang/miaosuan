@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 21:12:28
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 19:49:00
+LastEditTime: 2025-09-15 19:04:00
 FilePath: /miaosuan2/datamodels/dm_equity.py
 Description: 数据模型
 
@@ -38,7 +38,7 @@ class Equity(BaseModel):
     
     def to_futu_symbol(self) -> str:
         """转换为FutuOpenAPI的symbol"""
-        if self.symbol == "^HSI":
+        if self.symbol == "^HSI" or self.symbol == "800000":
             return "HK.800000"
         else:
             if self.market in ["US", "TW", "TOKYO", "LONDON"]:

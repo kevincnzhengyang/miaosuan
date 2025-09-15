@@ -48,6 +48,18 @@ def get_rules_by_symbol(symbol: str, only_valid: bool = True) -> list[Any]:
     conn.close()
     return rows
 
+def get_rules_by_symbol_rule(rule: str, symbol: str, only_valid: bool = True) -> Any:
+    conn = sqlite3.connect(settings.DB_FILE)
+    conn.row_factory = sqlite3.Row
+    if only_valid:
+        rows = conn.execute("SELECT * FROM rules WHERE name=? AND symbol=? AND enabled=1", 
+                            (rule, symbol,)).fetchone()
+    else:
+        rows = conn.execute("SELECT * FROM rules WHERE name=? AND symbol=?", 
+                            (rule, symbol,)).fetchone()
+    conn.close()
+    return rows
+
 def get_rule(rule_id: int) -> Any:
     conn = sqlite3.connect(settings.DB_FILE)
     conn.row_factory = sqlite3.Row

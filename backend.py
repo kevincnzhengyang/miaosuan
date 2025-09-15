@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:24:32
+LastEditTime: 2025-09-15 19:07:00
 FilePath: /miaosuan2/backend.py
 Description: 
 
@@ -20,6 +20,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from config.settings import settings
 from services.mss_diting.quote_manager import manager
 from services.mss_diting.quote_futu import FutuEngine
+from services.mss_qianji.qtr_abnormal import update_rule_of_equities
 from helper.account_futu import futu_sync_group
 from helper.hist_futu import futu_update_daily
 from services import chuanyin, diting, qianshou
@@ -47,6 +48,11 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(futu_update_daily, "cron", 
                     day_of_week="1-5", # 每周二到周六
                     hour=settings.CRON_HOUR, 
+                    minute=settings.CRON_MINUTE,
+                    id="futu_daily")
+    scheduler.add_job(update_rule_of_equities, "cron", 
+                    day_of_week="0-4", # 每周一到周五
+                    hour=settings.CRON_HOUR+2, 
                     minute=settings.CRON_MINUTE,
                     id="futu_daily")
     scheduler.add_job(futu_sync_group, "interval", 

@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 20:44:58
+LastEditTime: 2025-09-15 19:07:02
 FilePath: /miaosuan2/services/qianshou.py
 Description: 
 
@@ -20,6 +20,7 @@ from helper.indicator_tools import load_all_indicators
 from helper.hist_futu import futu_update_daily
 from helper.bin_tools import load_equity_quote
 from helper.account_futu import *
+from services.mss_qianji.qtr_abnormal import update_rule_of_equities
 
 
 router = APIRouter(
@@ -52,4 +53,9 @@ def update_futu_daily_api():
 @router.post("/sync/futu/group")
 async def sync_futu_group_api():
     await futu_sync_group()
+    return {"status":"ok"}
+
+@router.post("/update/rules")
+async def update_all_rule_equities():
+    update_rule_of_equities()
     return {"status":"ok"}

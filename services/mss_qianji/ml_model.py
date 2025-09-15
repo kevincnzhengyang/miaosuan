@@ -1,3 +1,13 @@
+'''
+Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
+Date: 2025-09-12 18:31:43
+LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
+LastEditTime: 2025-09-15 18:53:50
+FilePath: /miaosuan2/services/mss_qianji/ml_model.py
+Description: 
+
+Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
+'''
 import abc
 import pandas as pd
 
@@ -6,6 +16,7 @@ class MLModel(abc.ABC):
 
     def __init__(self):
         self.model = None
+        self.fields = ['$CLOSE', '$VOLUME']      # 用于模型分析的指标
 
     @abc.abstractmethod
     def train(self, df: pd.DataFrame):
