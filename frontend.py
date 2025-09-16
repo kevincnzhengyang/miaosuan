@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 18:01:27
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 20:19:06
-FilePath: /miaosuan2/dashboard/frontend.py
+LastEditTime: 2025-09-16 22:37:48
+FilePath: /miaosuan2/frontend.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -15,10 +15,9 @@ import dash_bootstrap_components as dbc
 
 from config.settings import settings
 
-BASE_DIR = Path(__file__).resolve().parent
 
 # 记录日志到文件
-logger.add(os.path.join(BASE_DIR, settings.LOG_DIR, "dashboard.log"), 
+logger.add(os.path.join(settings.BASE_DIR, settings.LOG_DIR, "dashboard.log"), 
             level=settings.LOG_LEVEL, 
             rotation="50 MB", retention=5)
 

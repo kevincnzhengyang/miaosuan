@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 10:15:30
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 20:25:58
+LastEditTime: 2025-09-16 22:41:58
 FilePath: /miaosuan2/main.py
 Description:  miaosuan cli entry point
 
@@ -13,8 +13,6 @@ import click, uvicorn, qlib
 
 from config.settings import settings
 from localdb.tables import init_db
-from backend import fastapi
-from frontend import dashapp
 
 
 @click.command()
@@ -33,12 +31,14 @@ def cli(miaosuan, dashboard):
         qlib.init(provider_uri=settings.DATA_DIR, region="cn")
 
         # 启动妙算服务
+        from backend import fastapi
         uvicorn.run(fastapi, 
                     host=settings.API_HOST, 
                     port=settings.API_PORT)
     elif dashboard:
         click.echo(f'开启工作台')
         # 启动工作台界面
+        from frontend import dashapp
         dashapp.run(host=settings.APP_HOST, 
                     port=settings.APP_PORT)
         

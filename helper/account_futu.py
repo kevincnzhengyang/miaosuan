@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-04 19:05:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:11:11
+LastEditTime: 2025-09-16 23:15:41
 FilePath: /miaosuan2/helper/account_futu.py
 Description: 
 
@@ -25,12 +25,15 @@ from localdb.db_qianshou import *
 def _create_and_doc(symbol: str, market: str) -> None:
     # 创建标的，并利用AKShare获取基本信息（因Futu9.4不提供此类接口）
     e = Equity(symbol=symbol, market=market)
-    if market == 'HK':
-        info = ak.stock_individual_basic_info_hk_xq(symbol=symbol)
-    elif market == 'SH' or market == 'SZ':
-        info = ak.stock_individual_basic_info_xq(symbol=f"{market}{symbol}")
-    else:
-        info = None
+
+    info = None
+    try:
+        if market == 'HK':
+            info = ak.stock_individual_basic_info_hk_xq(symbol=symbol)
+        elif market == 'SH' or market == 'SZ':
+            info = ak.stock_individual_basic_info_xq(symbol=f"{market}{symbol}")
+    except Exception:
+        logger.warning(f"获取股票信息失败AK: {symbol}@{market}")
     if info is None or not isinstance(info, pd.DataFrame) or info.empty:
         e.note = ""
     else:
