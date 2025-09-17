@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 19:43:10
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-10 21:04:08
-FilePath: /miaosuan/dashboard/pages/page_stocks.py
+LastEditTime: 2025-09-17 11:24:28
+FilePath: /miaosuan2/pages/page_stocks.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -12,9 +12,11 @@ import dash
 from dash import html, dash_table, Input, Output, State, callback
 import dash_bootstrap_components as dbc
 
-from .api_client import get_stock_list
+from pages.api_client import get_stock_list
+
 
 dash.register_page(__name__, path="/", name="关注股票")
+
 
 stock_data = get_stock_list()
 

@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:31:43
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-15 19:02:07
+LastEditTime: 2025-09-17 11:10:44
 FilePath: /miaosuan2/services/mss_qianji/workflow.py
 Description: 
 
@@ -29,7 +29,8 @@ class TaskWorkflowQLib:
 
     def run(self, task_id: str, model_name: str, instrument: str, 
             train_start: str, train_end: str,
-            backtest_start:str, backtest_end: str):
+            valid_start: str, valid_end: str,
+            test_start:str, test_end: str):
         self.dm.set_task_id(task_id=task_id)
         model = ModelFactory.get_model(model_name)
 
@@ -50,16 +51,16 @@ class TaskWorkflowQLib:
         # 3. 构建回测 executor
         executor = SimulatorExecutor(
             time_per_step="day",
-            start_time=backtest_start,
-            end_time=backtest_end,
+            start_time=test_start,
+            end_time=test_end,
             generate_portfolio_metrics=True,
         )
 
         # 4. 回测
         strategy_name = "topk"
         port_metrics, _ = backtest(
-            start_time=backtest_start,
-            end_time=backtest_end,
+            start_time=test_start,
+            end_time=test_end,
             strategy=strategy_name,
             executor=executor,
             benchmark="HK.800000",
@@ -93,6 +94,8 @@ def run_tasks() -> None:
                                 task_id=t['task_id'], model_name=t['model'],
                                 train_start=t['train_start'], 
                                 train_end=t['train_end'],
-                                backtest_start=t['backtest_start'], 
-                                backtest_end=t['backtest_end'])
+                                valid_start=t['valid_start'], 
+                                valid_end=t['valid_end'],
+                                test_start=t['test_start'], 
+                                test_end=t['test_end'])
             executor.map(run_partial, t['instrument'].split(","))

@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 19:44:03
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-11 21:38:40
-FilePath: /miaosuan/dashboard/pages/page_financials.py
+LastEditTime: 2025-09-17 11:41:12
+FilePath: /miaosuan2/pages/page_financials.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -13,7 +13,8 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc, Input, Output, State, dash_table
 from typing import Any, Dict, List, cast
 
-from .api_client import get_stocks_code, get_financial_report, DateRangeModel
+from datamodels.dm_daterange import DateRangeModel
+from pages.api_client import get_stocks_code, get_financial_report
 
 
 dash.register_page(__name__, path="/financials", name="财务报表")

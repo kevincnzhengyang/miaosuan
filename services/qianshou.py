@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-16 22:49:34
+LastEditTime: 2025-09-17 11:05:21
 FilePath: /miaosuan2/services/qianshou.py
 Description: 
 
@@ -25,7 +25,7 @@ from services.mss_qianji.qtr_abnormal import update_rule_of_equities
 
 router = APIRouter(
     prefix="/qianshou",
-    tags=["qianshou"],
+    tags=["QianShou"],
 )
 
 @router.get("/equities")

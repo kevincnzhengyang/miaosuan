@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-10 19:44:34
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-11 22:26:39
-FilePath: /miaosuan/dashboard/pages/page_tasks.py
+LastEditTime: 2025-09-17 11:41:00
+FilePath: /miaosuan2/pages/page_tasks.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -13,7 +13,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc, Input, Output, State, dash_table
 from typing import Any, Dict, List, cast
 
-from .api_client import get_stocks_code, get_tasks
+from pages.api_client import get_stocks_code, get_tasks
 
 
 dash.register_page(__name__, path="/tasks", name="量化分析")
@@ -62,8 +62,10 @@ def create_table(data: list, title: str):
         {"name": "模型名称", "id": "model"},
         {"name": "训练开始", "id": "train_start"},
         {"name": "训练结束", "id": "train_end"},
-        {"name": "回测开始", "id": "backtest_start"},
-        {"name": "回测结束", "id": "backtest_end"},
+        {"name": "验证开始", "id": "valid_start"},
+        {"name": "验证结束", "id": "valid_end"},
+        {"name": "回测开始", "id": "test_start"},
+        {"name": "回测结束", "id": "test_end"},
     ])
 
     return dbc.Card([
