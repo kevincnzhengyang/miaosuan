@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:04:49
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-15 18:51:57
-FilePath: /miaosuan2/services/mss_qianji/qtr_abnromal.py
+LastEditTime: 2025-09-17 10:53:25
+FilePath: /miaosuan2/services/mss_qianji/qtr_abnormal.py
 Description: 市场异常交易监控规则
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -34,22 +34,22 @@ def _update_equity(rec: dict) -> None:
                     # 成交量大于2倍MA5
                     {"field": "volume", "op": ">=", "value": rec['$HLY_VMA5_II']},
                     # 单日波动大于5%
-                    {"field": "amplitude", "op": ">=", "value": 5.0},
+                    {"field": "pct_amp", "op": ">=", "value": 5.0},
                     # 价格高于散逸区上限
                     {"field": "high", "op": ">=", "value": rec['$HLY_ESC_UPPER']},
                     # 价格低于散逸区下限
                     {"field": "low", "op": "<=", "value": rec['$HLY_ESC_LOWER']},
                     # 价格高于引力区上限且涨幅大于3%
-                    {"logid": "AND", 
+                    {"logic": "AND", 
                     "conditions": [
                         {"field": "high", "op": ">", "value": rec['$HLY_ATT_UPPER']},
-                        {"field": "pct_change", "op": ">=", "value": 3.0},
+                        {"field": "pct_chg", "op": ">=", "value": 3.0},
                     ]},
                     # 价格低于引力区下限且跌幅大于3%
-                    {"logid": "AND", 
+                    {"logic": "AND", 
                     "conditions": [
                         {"field": "low", "op": "<", "value": rec['$HLY_ATT_LOWER']},
-                        {"field": "pct_change", "op": "<=", "value": -3.0},
+                        {"field": "pct_chg", "op": "<=", "value": -3.0},
                     ]},
                  ]}
 
@@ -76,15 +76,16 @@ def update_rule_of_equities() -> None:
     # 获取当前星期天数
     today = datetime.today()
     weekday = today.weekday()
-    if weekday == 5:
-        # Saturday
-        daystr = (today - timedelta(days=1)).strftime("%Y-%m-%d")
-    elif weekday == 6:
-        # Sunday
-        daystr = (today - timedelta(days=2)).strftime("%Y-%m-%d")
+    if weekday > 4:
+        # weekend
+        logger.info(f"周末不需要进行规则监控{weekday}")
+        return
+    if weekday == 0:
+        # 周一，取上周五的数据
+        daystr = (today - timedelta(days=3)).strftime("%Y-%m-%d")
     else:
-        # Monday~Friday
-        daystr = today.strftime("%Y-%m-%d")
+        # 周二到周五，取前一天数据
+        daystr = (today - timedelta(days=1)).strftime("%Y-%m-%d")
     
     # 获取所有标的股票
     rows = get_equities()
@@ -103,8 +104,9 @@ def update_rule_of_equities() -> None:
                     start_time=daystr, 
                     end_time=daystr)
     if len(df) == 0:
-        logger.error(f"{symbols}没有参考技术指标")
+        logger.error(f"{symbols}没有参考技术指标@{daystr}")
         return
+    df = df.reset_index()
     
     # 逐个更新规则
     for r in df.to_dict(orient='records'):

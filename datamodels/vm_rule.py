@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 21:20:30
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:20:50
+LastEditTime: 2025-09-17 10:53:23
 FilePath: /miaosuan2/datamodels/vm_rule.py
 Description: 
 
@@ -26,7 +26,7 @@ OPS = {
 VALID_LOGICS = {"AND", "OR", "NOT"}
 
 # 白名单（行情字段）
-VALID_FIELDS = {"open", "high", "low", "close", "volume", "amplitude", "pct_change"}
+VALID_FIELDS = {"open", "high", "low", "close", "volume", "pct_amp", "pct_chg"}
 
 # -------------------------
 # JSON Schema 定义

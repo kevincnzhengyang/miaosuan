@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 19:05:41
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 19:45:03
+LastEditTime: 2025-09-17 10:14:04
 FilePath: /miaosuan2/localdb/tables.py
 Description: 初始化数据库表
 
@@ -38,11 +38,12 @@ def init_db():
     # 创建谛听数据表
     cur.execute("""CREATE TABLE IF NOT EXISTS rules(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE, symbol TEXT NOT NULL, 
+        name TEXT NOT NULL, symbol TEXT NOT NULL, 
         brokers TEXT NOT NULL, rule_json TEXT NOT NULL,
         webhook_url TEXT NOT NULL, tag TEXT NOT NULL,
         note TEXT, enabled INTEGER DEFAULT 1, 
-        updated_at TIMESTAMP
+        updated_at TIMESTAMP,
+        UNIQUE (name, symbol)
     )""")
     cur.execute("""CREATE TABLE IF NOT EXISTS triggers(
         id INTEGER PRIMARY KEY AUTOINCREMENT,

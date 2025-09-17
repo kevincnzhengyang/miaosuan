@@ -2,14 +2,14 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-01 21:06:32
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:17:43
+LastEditTime: 2025-09-17 10:33:02
 FilePath: /miaosuan2/helper/hist_futu.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
 '''
 
-import os, requests
+import os
 import pandas as pd
 import akshare as ak
 import time as t
@@ -23,30 +23,9 @@ from datamodels.dm_equity import Equity
 from localdb.db_qianshou import get_equities, set_equities_last
 from helper.indicator_tools import IndicatorManager
 from helper.bin_tools import *
+from helper.ip_owner import is_chinese_mainland
 
 
-def _get_public_ip() -> str:
-    ip = requests.get("https://api.ipify.org").text
-    return ip
-
-def _get_geo_info(ip) -> tuple:
-    url = f"http://ip-api.com/json/{ip}?lang=zh-CN"
-    resp = requests.get(url)
-    data = resp.json()
-    if data['status'] == 'success':
-        return data['country'], data['regionName']
-    else:
-        return None, None
-
-def _is_chinese_mainland() -> bool:
-    ip = _get_public_ip()
-    country, region = _get_geo_info(ip)
-    if country != "中国":
-        return False
-    if region != "香港" or region != "澳门" or region != "台湾":
-        return False
-    return True
- 
 def _format_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty:
         return df
@@ -256,7 +235,7 @@ def futu_update_daily():
     # - 港澳台及海外IP客户/机构客户：暂不支持
     # 
     # 当位置不在大陆时，使用akshre获取历史数据
-    if not _is_chinese_mainland():
+    if not is_chinese_mainland():
         for e in a_shares:
             _akshare_update_equity(e, manager)
 

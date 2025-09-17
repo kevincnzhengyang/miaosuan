@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 07:47:28
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:26:35
+LastEditTime: 2025-09-17 10:42:36
 FilePath: /miaosuan2/services/mss_diting/quote_base.py
 Description: 行情基类
 
@@ -35,6 +35,10 @@ class BaseQuoteEngine(ABC):
         self._update_counter = 0
         self._updated = "1970-01-01 00:00:00"  # 上次规则更新的时间
 
+    def _filter_symbols(self):
+        """子类实现标的过滤"""
+        pass
+
     def _load_symbols_rules(self):
         last_update = self._updated
         self._updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -53,7 +57,7 @@ class BaseQuoteEngine(ABC):
                 self._rules[rule["symbol"]] = [rule]
         self._symbols = set(self._rules.keys())
         logger.info(f"[{self.name}] 更新规则与标的@ {last_update}")
-
+        self._filter_symbols()
     
             
     async def _safe_loop(self):
