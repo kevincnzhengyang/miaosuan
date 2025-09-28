@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:04:49
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-17 10:53:25
-FilePath: /miaosuan2/services/mss_qianji/qtr_abnormal.py
+LastEditTime: 2025-09-28 16:22:08
+FilePath: /miaosuan/services/mss_qianji/qtr_abnormal.py
 Description: 市场异常交易监控规则
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -60,16 +60,16 @@ def _update_equity(rec: dict) -> None:
                             symbol=rec['instrument'],
                             brokers='FUTU',
                             rule_json=json.dumps(rule_defs),
-                            webhook_url='/chuanyin/notify',
+                            webhook_url=f'http://localhost:{settings.API_PORT}/chuanyin/notify',
                             tag='重大异常交易信号'))
     else:
         rid = update_rule(rule_id=row['id'], 
                           rule=Rule(name=ABNR_RULE,
-                            symbol=rec['instrument'],
-                            brokers='FUTU',
-                            rule_json=json.dumps(rule_defs),
-                            webhook_url='/chuanyin/notify',
-                            tag='重大异常交易信号'))
+                                    symbol=rec['instrument'],
+                                    brokers='FUTU',
+                                    rule_json=json.dumps(rule_defs),
+                                    webhook_url=f'http://localhost:{settings.API_PORT}/chuanyin/notify',
+                                    tag='重大异常交易信号'))
     logger.info(f"更新监控规则P{rec['instrument']}@{rid}:{rule_defs}")
 
 def update_rule_of_equities() -> None:
