@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-01 21:06:32
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-17 10:33:02
-FilePath: /miaosuan2/helper/hist_futu.py
+LastEditTime: 2025-10-13 18:08:10
+FilePath: /miaosuan/helper/hist_futu.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -208,6 +208,7 @@ def _akshare_update_equity(e: Equity, manager: IndicatorManager):
 
     # 保存有指标结果的CSV
     csv_file = os.path.join(settings.CSV_DIR, f"{ft_name}.csv")
+    df_with_ind["symbol"] = ft_name  # 重置symbol列
     df_with_ind.to_csv(csv_file)
     logger.info(f"待分析数据文件: {csv_file}")
     t.sleep(3)

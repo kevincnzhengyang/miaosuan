@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 08:47:24
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-17 11:03:39
-FilePath: /miaosuan2/services/mss_diting/quote_futu.py
+LastEditTime: 2025-10-13 17:35:08
+FilePath: /miaosuan/services/mss_diting/quote_futu.py
 Description: Futu行情引擎
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -113,6 +113,6 @@ class FutuEngine(BaseQuoteEngine):
                     volume=int(row['volume'])
                 ))
             self.check_rules(quotes)
-            logger.info(f"[{self.name}] 拉取行情成功: {data}")
+            logger.info(f"[{self.name}] 拉取行情成功: {len(data)}")
         else:
-            logger.error(f"[{self.name}] 拉取行情失败: {data}")
+            logger.error(f"[{self.name}] 拉取行情失败: ret={ret}")

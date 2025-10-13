@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-16 22:44:22
-FilePath: /miaosuan2/backend.py
+LastEditTime: 2025-10-13 18:33:04
+FilePath: /miaosuan/backend.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -52,8 +52,8 @@ async def lifespan(app: FastAPI):
                     id="futu_daily")
     scheduler.add_job(update_rule_of_equities, "cron", 
                     day_of_week="0-4", # 每周一到周五
-                    hour=settings.CRON_HOUR+2, 
-                    minute=settings.CRON_MINUTE,
+                    hour=settings.CRON_HOUR+1, 
+                    minute=0,
                     id="rule_daily")
     scheduler.add_job(futu_sync_group, "interval", 
                     minutes=settings.SYNC_INTERV_M,
