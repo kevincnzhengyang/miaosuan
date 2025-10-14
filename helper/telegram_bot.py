@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:51:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-14 10:57:14
+LastEditTime: 2025-10-14 11:37:32
 FilePath: /miaosuan/helper/telegram_bot.py
 Description: Telegram bot integration
 
@@ -40,6 +40,9 @@ async def telegram_broadcast(msg: Message):
     
     # logger.info(f"Broadcasting message to Telegram subscribers: {text}")
     subs = list_subscribers("telegram")
+    if subs is None or len(subs) == 0:
+        logger.warning("没有Teleram订阅用户")
+        return
     tasks = [telegram_bot.send_message(
                 chat_id=sub["user_id"], 
                 text=text,

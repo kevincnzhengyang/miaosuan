@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 23:06:13
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-14 10:57:55
+LastEditTime: 2025-10-14 11:37:56
 FilePath: /miaosuan/helper/line_bot.py
 Description: line bot integration
 
@@ -61,6 +61,9 @@ async def line_broadcast(msg: Message):
 
     # logger.info(f"Broadcasting message to Line subscribers: {flex_message}")
     subs = list_subscribers("line")
+    if subs is None or len(subs) == 0:
+        logger.warning("没有Line订阅用户")
+        return
     tasks = [send_to_line(
                 user_id=sub["user_id"], 
                 fmsg=flex_message) for sub in subs]
