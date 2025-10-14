@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-13 18:33:04
+LastEditTime: 2025-10-14 11:00:10
 FilePath: /miaosuan/backend.py
 Description: 
 
@@ -55,9 +55,14 @@ async def lifespan(app: FastAPI):
                     hour=settings.CRON_HOUR+1, 
                     minute=0,
                     id="rule_daily")
-    scheduler.add_job(futu_sync_group, "interval", 
-                    minutes=settings.SYNC_INTERV_M,
-                    id="futu_sync")
+    scheduler.add_job(futu_sync_group, "cron", 
+                    day_of_week="0-6", # 每周一到周日
+                    hour=0, 
+                    minute=0,
+                    id="sync_daily")
+    # scheduler.add_job(futu_sync_group, "interval", 
+    #                 minutes=settings.SYNC_INTERV_M,
+    #                 id="futu_sync")
     scheduler.start()
     yield
     scheduler.shutdown()

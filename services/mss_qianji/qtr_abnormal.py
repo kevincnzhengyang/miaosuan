@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:04:49
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-28 16:22:08
+LastEditTime: 2025-10-14 11:01:15
 FilePath: /miaosuan/services/mss_qianji/qtr_abnormal.py
 Description: 市场异常交易监控规则
 
@@ -26,8 +26,6 @@ ABNR_RULE = "__ABNR_RULE"
 
 
 def _update_equity(rec: dict) -> None:
-    logger.debug(f"更新规则{rec}")
-
     # 准备新的规则
     rule_defs = {"logic": "OR",
                  "conditions": [
@@ -70,7 +68,7 @@ def _update_equity(rec: dict) -> None:
                                     rule_json=json.dumps(rule_defs),
                                     webhook_url=f'http://localhost:{settings.API_PORT}/chuanyin/notify',
                                     tag='重大异常交易信号'))
-    logger.info(f"更新监控规则P{rec['instrument']}@{rid}:{rule_defs}")
+    logger.info(f"更新监控规则{rec['instrument']}@{rid}:{rule_defs}")
 
 def update_rule_of_equities() -> None:
     # 获取当前星期天数
@@ -87,6 +85,8 @@ def update_rule_of_equities() -> None:
         # 周二到周五，取前一天数据
         daystr = (today - timedelta(days=1)).strftime("%Y-%m-%d")
     
+    logger.info(f"更新规则@{daystr}")
+
     # 获取所有标的股票
     rows = get_equities()
     if 0 == len(rows):

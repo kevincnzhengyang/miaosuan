@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:51:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:00:07
-FilePath: /miaosuan2/helper/telegram_bot.py
+LastEditTime: 2025-10-14 10:57:14
+FilePath: /miaosuan/helper/telegram_bot.py
 Description: Telegram bot integration
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -38,7 +38,7 @@ async def telegram_broadcast(msg: Message):
         f"🌊 振幅: `{msg.ohlc['pct_amp']:.2f}%`"
     )
     
-    logger.info(f"Broadcasting message to Telegram subscribers: {text}")
+    # logger.info(f"Broadcasting message to Telegram subscribers: {text}")
     subs = list_subscribers("telegram")
     tasks = [telegram_bot.send_message(
                 chat_id=sub["user_id"], 

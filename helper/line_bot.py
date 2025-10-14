@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 23:06:13
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 20:58:54
-FilePath: /miaosuan2/helper/line_bot.py
+LastEditTime: 2025-10-14 10:57:55
+FilePath: /miaosuan/helper/line_bot.py
 Description: line bot integration
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -59,7 +59,7 @@ async def line_broadcast(msg: Message):
         }
     )
 
-    logger.info(f"Broadcasting message to Telegram subscribers: {flex_message}")
+    # logger.info(f"Broadcasting message to Line subscribers: {flex_message}")
     subs = list_subscribers("line")
     tasks = [send_to_line(
                 user_id=sub["user_id"], 
