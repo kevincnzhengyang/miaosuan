@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 09:53:45
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:25:07
-FilePath: /miaosuan2/services/mss_diting/quote_manager.py
+LastEditTime: 2025-10-30 08:30:31
+FilePath: /miaosuan/services/mss_diting/quote_manager.py
 Description: 行情管理器
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -47,6 +47,13 @@ class QuoteManager:
     def status(self):
         return {name: eng.is_running() for name, eng in self.engines.items()}
 
+    async def daily_all(self):
+        for e in self.engines.values():
+            await e.update_daily()
 
+    async def weekly_all(self):
+        for e in self.engines.values():
+            await e.update_weekly()
+                
 # 初始化管理者
 manager = QuoteManager()

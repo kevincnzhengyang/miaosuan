@@ -2,14 +2,14 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 08:47:24
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-13 17:35:08
+LastEditTime: 2025-10-30 09:27:55
 FilePath: /miaosuan/services/mss_diting/quote_futu.py
 Description: Futu行情引擎
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
 '''
 
-import asyncio
+import asyncio, datetime
 import pandas as pd
 from loguru import logger
 from futu import OpenQuoteContext, SubType, MarketState
@@ -18,6 +18,8 @@ from config.settings import settings
 from .quote_base import BaseQuoteEngine
 from datamodels.dm_quote import QuoteOHLC
 from helper.ip_owner import is_chinese_mainland
+from helper.account_futu import futu_sync_group
+from helper.hist_futu import futu_update_daily
 
 
 class FutuEngine(BaseQuoteEngine):
@@ -116,3 +118,20 @@ class FutuEngine(BaseQuoteEngine):
             logger.info(f"[{self.name}] 拉取行情成功: {len(data)}")
         else:
             logger.error(f"[{self.name}] 拉取行情失败: ret={ret}")
+
+    async def update_daily(self):
+        # 每日同步账户分组信息
+        await futu_sync_group()
+
+        # 每日更新时，重新加载规则与标的
+        super()._load_symbols_rules()
+
+        self._subscribe()     # 订阅最新标的
+
+        # 每周二到周六，下载前一交易日的历史数据，更新本地CSV文件
+        day = datetime.datetime.now().weekday()
+        if day != 0 and day != 6:
+            futu_update_daily()
+
+    async def update_weekly(self):
+        pass

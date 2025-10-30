@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 07:47:28
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-17 10:42:36
-FilePath: /miaosuan2/services/mss_diting/quote_base.py
+LastEditTime: 2025-10-30 08:30:43
+FilePath: /miaosuan/services/mss_diting/quote_base.py
 Description: 行情基类
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -39,6 +39,16 @@ class BaseQuoteEngine(ABC):
         """子类实现标的过滤"""
         pass
 
+    def _cooling_symbols(self):
+        last_update = self._updated
+        self._updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # 冷却所有规则
+        for symbol in self._symbols:
+            for rule in self._rules[symbol]:
+                rule["_invoked"] = False  # 重置触发标记
+        logger.info(f"[{self.name}] 冷却规则@ {last_update}")
+    
     def _load_symbols_rules(self):
         last_update = self._updated
         self._updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -58,7 +68,6 @@ class BaseQuoteEngine(ABC):
         self._symbols = set(self._rules.keys())
         logger.info(f"[{self.name}] 更新规则与标的@ {last_update}")
         self._filter_symbols()
-    
             
     async def _safe_loop(self):
         logger.info(f"[{self.name}] 开始运行...")
@@ -68,7 +77,7 @@ class BaseQuoteEngine(ABC):
                 # 冷却周期到期，进行更新
                 if self._update_counter >= settings.COOLING_CYCLE:
                     self._update_counter = 0
-                    self._load_symbols_rules()
+                    self._cooling_symbols()
                 await self.loop()
             except Exception as e:
                 logger.warning(f"[{self.name}] 异常: {e}")
@@ -95,6 +104,16 @@ class BaseQuoteEngine(ABC):
 
     def is_running(self):
         return self._running and not self._task.done() if self._task else False
+
+    @abstractmethod
+    async def update_daily(self):
+        """子类必须实现引擎更新逻辑"""
+        pass
+
+    @abstractmethod
+    async def update_weekly(self):
+        """子类必须实现引擎更新逻辑"""
+        pass
 
     def eval_rules_trigger(self, rules: List[dict], quote: QuoteOHLC):
         # 评估规则是否触发

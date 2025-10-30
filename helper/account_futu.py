@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-04 19:05:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-16 23:15:41
-FilePath: /miaosuan2/helper/account_futu.py
+LastEditTime: 2025-10-30 08:52:04
+FilePath: /miaosuan/helper/account_futu.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -147,20 +147,25 @@ def request_hist_finance(f_list: list) -> None:
         logger.debug(f"完成下载财务数据{symbol}@{market}!")
         time.sleep(5)
 
-async def futu_sync_group():
-    logger.debug(f"开始同步富途牛牛自选股列表...")
+
+def futu_get_group(name: str) -> list:
+    logger.debug(f"开始同步富途牛牛自选股列表 {name}")
     quote_ctx = OpenQuoteContext(host=settings.FUTU_API_HOST, port=settings.FUTU_API_PORT)
 
-    f_list = []
     equities = []
-    ret, data = quote_ctx.get_user_security(settings.FUTU_GROUP_NAME)
+    ret, data = quote_ctx.get_user_security(name)
     if ret != RET_OK or data is None or not isinstance(data, pd.DataFrame) or data.empty:
-        logger.warning(f"富途牛牛中获取自选列表{settings.FUTU_GROUP_NAME}失败: {data}")
+        logger.warning(f"富途牛牛中获取自选列表{name}失败: {data}")
     elif data.shape[0] > 0:  # 如果自选股列表不为空
         equities = data['code'].values.tolist()
-        logger.info(f"自选列表: {equities}")   # 转为 list
+        logger.info(f"自选列表{name}: {equities}")   # 转为 list
     # 关闭Futu
     quote_ctx.close()
+    return equities
+
+async def futu_sync_group():
+    f_list = []
+    equities = futu_get_group(settings.FUTU_GROUP_QUANTER)
 
     # 同步数据
     for code in equities:
