@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-01 21:06:32
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-13 18:08:10
+LastEditTime: 2025-10-30 10:39:39
 FilePath: /miaosuan/helper/hist_futu.py
 Description: 
 
@@ -223,7 +223,8 @@ def futu_update_daily():
     manager = IndicatorManager()
     manager.load_all_sets()
 
-    for row in get_equities(only_valid=True):
+    # 更新所有股票数据 
+    for row in get_equities(only_valid=False):
         e = Equity(**dict(row))
         _update_equity(e, manager, quote_ctx)
         if e.market == 'SH' or e.market == 'SZ':

@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 19:45:28
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:22:08
-FilePath: /miaosuan2/localdb/db_qianshou.py
+LastEditTime: 2025-10-30 10:28:29
+FilePath: /miaosuan/localdb/db_qianshou.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -23,9 +23,9 @@ def add_equity(e: Equity) -> Any:
     cur.execute("INSERT INTO equities(symbol,market,note,enabled,updated_at) VALUES(?,?,?,?,CURRENT_TIMESTAMP)",
                 (e.symbol.upper(), e.market.upper(), e.note, int(e.enabled)))
     conn.commit()
-    rule_id = cur.lastrowid
+    eid = cur.lastrowid
     conn.close()
-    return rule_id
+    return eid
 
 def get_equities(only_valid: bool = True) -> list[Any]:
     conn = sqlite3.connect(settings.DB_FILE)

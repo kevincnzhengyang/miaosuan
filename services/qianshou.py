@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-17 11:05:21
-FilePath: /miaosuan2/services/qianshou.py
+LastEditTime: 2025-10-30 10:32:33
+FilePath: /miaosuan/services/qianshou.py
 Description: 
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -15,6 +15,7 @@ from fastapi import APIRouter
 from localdb.db_qianshou import *
 from datamodels.dm_equity import Equity
 from datamodels.dm_daterange import DateRangeModel
+from config.settings import settings
 from localdb.db_qianshou import get_equities
 from helper.indicator_tools import load_all_indicators
 from helper.hist_futu import futu_update_daily
@@ -52,7 +53,7 @@ def update_futu_daily_api():
 
 @router.post("/sync/futu/group")
 async def sync_futu_group_api():
-    await futu_sync_group()
+    await futu_sync_group(settings.FUTU_GROUP_QUANTER)
     return {"status":"ok"}
 
 @router.post("/update/rules")

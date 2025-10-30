@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-04 19:05:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 08:52:04
+LastEditTime: 2025-10-30 10:35:53
 FilePath: /miaosuan/helper/account_futu.py
 Description: 
 
@@ -22,7 +22,7 @@ from datamodels.dm_equity import Equity
 from localdb.db_qianshou import *
 
 
-def _create_and_doc(symbol: str, market: str) -> None:
+def _create_and_doc(symbol: str, market: str, enable: bool = True) -> None:
     # 创建标的，并利用AKShare获取基本信息（因Futu9.4不提供此类接口）
     e = Equity(symbol=symbol, market=market)
 
@@ -38,7 +38,9 @@ def _create_and_doc(symbol: str, market: str) -> None:
         e.note = ""
     else:
         e.note = json.dumps(info.to_dict(orient="records"))
-    add_equity(e)
+    eid = add_equity(e)
+    if not enable:
+        delete_equity(eid)
     logger.info(f"创建标的 {e.symbol}@{e.market} 成功")
     time.sleep(5)
 
@@ -163,9 +165,9 @@ def futu_get_group(name: str) -> list:
     quote_ctx.close()
     return equities
 
-async def futu_sync_group():
+async def futu_sync_group(name: str, enable: bool = True) -> None:
     f_list = []
-    equities = futu_get_group(settings.FUTU_GROUP_QUANTER)
+    equities = futu_get_group(name)
 
     # 同步数据
     for code in equities:
@@ -175,7 +177,7 @@ async def futu_sync_group():
         logger.info(f"同步{symbol}@{market}")
         f_list.append((symbol, market))
         if if_not_exist_equity(symbol):
-            _create_and_doc(symbol, market)
+            _create_and_doc(symbol, market, enable)
 
     # 利用AKShare下载历史财报数据（因Futu9.4不提供此类接口）
     if f_list:

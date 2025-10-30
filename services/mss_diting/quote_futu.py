@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 08:47:24
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 09:27:55
+LastEditTime: 2025-10-30 10:35:20
 FilePath: /miaosuan/services/mss_diting/quote_futu.py
 Description: Futu行情引擎
 
@@ -121,7 +121,8 @@ class FutuEngine(BaseQuoteEngine):
 
     async def update_daily(self):
         # 每日同步账户分组信息
-        await futu_sync_group()
+        await futu_sync_group(settings.FUTU_GROUP_QUANTER)
+        await futu_sync_group(settings.FUTU_GROUP_INDUSTRY, enable=False)
 
         # 每日更新时，重新加载规则与标的
         super()._load_symbols_rules()

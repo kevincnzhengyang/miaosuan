@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:48:50
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 09:18:45
+LastEditTime: 2025-10-30 10:34:40
 FilePath: /miaosuan/config/settings.py
 Description: 
 
@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     FUTU_API_PORT: int = 21111
     FUTU_GROUP_QUANTER: str = "量化分析"
     FUTU_GROUP_OPTION: str = "期权分析"
+    FUTU_GROUP_INDUSTRY: str = "行业分析"
     QUOTE_INTERVAL: int = 5
     COOLING_CYCLE: int = 10
     CRON_HOUR: int = 5
