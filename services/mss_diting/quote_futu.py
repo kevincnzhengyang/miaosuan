@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 08:47:24
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 10:35:20
+LastEditTime: 2025-11-06 13:15:14
 FilePath: /miaosuan/services/mss_diting/quote_futu.py
 Description: Futu行情引擎
 
@@ -20,6 +20,7 @@ from datamodels.dm_quote import QuoteOHLC
 from helper.ip_owner import is_chinese_mainland
 from helper.account_futu import futu_sync_group
 from helper.hist_futu import futu_update_daily
+from services.mss_qianji.ta_daily import ta_daily_analysis
 
 
 class FutuEngine(BaseQuoteEngine):
@@ -114,7 +115,7 @@ class FutuEngine(BaseQuoteEngine):
                     pct_amp=row['high_price'] / row['low_price'] * 100 - 100,
                     volume=int(row['volume'])
                 ))
-            self.check_rules(quotes)
+            await self.check_rules(quotes)
             logger.info(f"[{self.name}] 拉取行情成功: {len(data)}")
         else:
             logger.error(f"[{self.name}] 拉取行情失败: ret={ret}")
@@ -129,10 +130,11 @@ class FutuEngine(BaseQuoteEngine):
 
         self._subscribe()     # 订阅最新标的
 
-        # 每周二到周六，下载前一交易日的历史数据，更新本地CSV文件
-        day = datetime.datetime.now().weekday()
-        if day != 0 and day != 6:
-            futu_update_daily()
+        # 下载历史数据，更新本地CSV文件
+        futu_update_daily()
+
+        # 更新分析报告
+        await ta_daily_analysis()
 
     async def update_weekly(self):
         pass

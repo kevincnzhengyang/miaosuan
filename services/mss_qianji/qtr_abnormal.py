@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:04:49
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-14 11:01:15
+LastEditTime: 2025-11-06 10:03:04
 FilePath: /miaosuan/services/mss_qianji/qtr_abnormal.py
 Description: 市场异常交易监控规则
 
@@ -102,7 +102,9 @@ def update_rule_of_equities() -> None:
                             '$HLY_ATT_UPPER', '$HLY_ATT_LOWER', 
                             '$HLY_ESC_UPPER', '$HLY_ESC_LOWER'], 
                     start_time=daystr, 
-                    end_time=daystr)
+                    end_time=daystr,
+                    disk_cache=0     # ⭐ 关闭磁盘缓存，避免重复读取同一文件
+                    )
     if len(df) == 0:
         logger.error(f"{symbols}没有参考技术指标@{daystr}")
         return

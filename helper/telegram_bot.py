@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-25 22:51:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-14 11:37:32
+LastEditTime: 2025-11-06 11:24:17
 FilePath: /miaosuan/helper/telegram_bot.py
 Description: Telegram bot integration
 
@@ -21,7 +21,7 @@ from localdb.db_chuanyin import list_subscribers
 from datamodels.dm_subscriber import Message
 
 
-telegram_bot = Bot(token=settings.TELEGRAM_BOT_TOKEN)
+telegram_bot = Bot(token=settings.TELEGRAM_BOT_TOKEN) # type: ignore
 
 # 广播消息给所有订阅用户
 async def telegram_broadcast(msg: Message):
@@ -38,6 +38,31 @@ async def telegram_broadcast(msg: Message):
         f"🌊 振幅: `{msg.ohlc['pct_amp']:.2f}%`"
     )
     
+    # logger.info(f"Broadcasting message to Telegram subscribers: {text}")
+    subs = list_subscribers("telegram")
+    if subs is None or len(subs) == 0:
+        logger.warning("没有Teleram订阅用户")
+        return
+    tasks = [telegram_bot.send_message(
+                chat_id=sub["user_id"], 
+                text=text,
+                parse_mode="MarkdownV2") for sub in subs]
+    return await asyncio.gather(*tasks, return_exceptions=True)
+
+# 广播图片给所有订阅用户
+async def telegram_broadcast_image(img: str, caption: str):
+    with open(img, "rb") as photo:
+        subs = list_subscribers("telegram")
+        if subs is None or len(subs) == 0:
+            logger.warning("没有Teleram订阅用户")
+            return
+        tasks = [telegram_bot.send_photo(
+                    chat_id=sub["user_id"], 
+                    photo=photo,
+                    caption=caption) for sub in subs]
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+async def telegram_broadcast_report(text: str):    
     # logger.info(f"Broadcasting message to Telegram subscribers: {text}")
     subs = list_subscribers("telegram")
     if subs is None or len(subs) == 0:

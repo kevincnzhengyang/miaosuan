@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-01 21:06:32
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 10:39:39
+LastEditTime: 2025-11-06 12:04:08
 FilePath: /miaosuan/helper/hist_futu.py
 Description: 
 
@@ -59,9 +59,16 @@ def _update_equity(e: Equity, manager: IndicatorManager, ctx: OpenQuoteContext):
         start_date = datetime.strptime("1990-01-01", "%Y-%m-%d").date()
 
     # 下载增量数据
-    if datetime.now().time() < time(17, 0, 0):
+    day = datetime.now().weekday()
+    if day > 4:
+        # 周末取前一个交易日
+        day_diff = day - 4
+        today = (datetime.today() - timedelta(days=day_diff)).date()
+    elif datetime.now().time() < time(17, 0, 0):
+        # 交易日17点前，取前一个交易日
         today = (datetime.today() - timedelta(days=1)).date()
     else:
+        # 交易日17点后，取当天
         today = datetime.today().date()
     logger.info(f"{ft_name}: {start_date} - {today}")
 
@@ -110,7 +117,7 @@ def _update_equity(e: Equity, manager: IndicatorManager, ctx: OpenQuoteContext):
             logger.info(f"更新数据文件: {ocsv_file}, 总记录数: {len(df)} => {ft_name} {start_date} - {today}")
         
     else:
-        logger.warning(f"尝试下载行情数据失败: {ft_name}: {start_date} - {today}")
+        logger.info(f"无需下载行情数据: {ft_name}: {start_date} - {today}")
     
 
     # 计算各种指标，即使数据无更新，自定义指标库也可能已发生变化，重新计算

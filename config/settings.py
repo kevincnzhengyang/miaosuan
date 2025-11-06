@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-12 18:48:50
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 10:34:40
+LastEditTime: 2025-11-06 12:21:10
 FilePath: /miaosuan/config/settings.py
 Description: 
 
@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     COOLING_CYCLE: int = 10
     CRON_HOUR: int = 5
     CRON_MINUTE: int = 30
+    # 分析报告设置
+    DATA_SPAN: int = 100
+    N_FORECAST: int = 5
     # IM参数设置
     TELEGRAM_BOT_TOKEN: str = ""
     LINE_ACCESS_TOKEN: str = ""

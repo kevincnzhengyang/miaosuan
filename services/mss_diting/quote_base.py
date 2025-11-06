@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 07:47:28
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 08:30:43
+LastEditTime: 2025-11-06 13:31:14
 FilePath: /miaosuan/services/mss_diting/quote_base.py
 Description: 行情基类
 
@@ -10,7 +10,7 @@ Copyright (c) 2025 by ${git_name_email}, All Rights Reserved.
 '''
 
 
-import os, asyncio, json, requests
+import os, asyncio, json, asyncio
 from abc import ABC, abstractmethod
 from loguru import logger
 from typing import List
@@ -18,10 +18,13 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 from config.settings import settings
+from helper.telegram_bot import telegram_broadcast
+from helper.line_bot import line_broadcast
+from datamodels.dm_subscriber import Message
 from datamodels.dm_rule import Trigger
 from datamodels.dm_quote import QuoteOHLC
 from localdb.db_diting import add_trigger, get_rules
-from .quote_rule import eval_rule
+from services.mss_diting.quote_rule import eval_rule
 
 
 # ----------------- 引擎基类 -----------------
@@ -115,7 +118,7 @@ class BaseQuoteEngine(ABC):
         """子类必须实现引擎更新逻辑"""
         pass
 
-    def eval_rules_trigger(self, rules: List[dict], quote: QuoteOHLC):
+    async def eval_rules_trigger(self, rules: List[dict], quote: QuoteOHLC):
         # 评估规则是否触发
         ohlc = quote.model_dump()
         for rule in rules:
@@ -131,30 +134,23 @@ class BaseQuoteEngine(ABC):
                     message=f"规则触发: {rule['name']} {quote.symbol} @ {ohlc}",
                 )
                 add_trigger(trigger)
-                # 这里可以添加调用 webhook + tag 的逻辑
-                try:
-                    payload = {
-                        "name": rule['name'],
-                        "symbol": quote.symbol,
-                        "ohlc": ohlc,
-                        "tag": rule['tag'],
-                    }
-                    headers = {'Content-Type': 'application/json'}
-                    response = requests.post(rule['webhook_url'], data=json.dumps(payload), headers=headers, timeout=5)
-                    if response.status_code == 200:
-                        logger.info(f"Webhook 调用成功: {rule['webhook_url']}")
-                        rule['_invoked'] = True  # 标记为已触发
-                    else:
-                        logger.error(f"Webhook 调用失败: {rule['webhook_url']} 状态码: {response.status_code}")
-                except Exception as e:
-                    logger.error(f"Webhook 调用异常: {e}")
+
+                msg = Message(
+                    name=rule['name'].translate(str.maketrans("", "", "*_~><`[]()")),  # 转义特殊字符
+                    symbol=quote.symbol,
+                    ohlc=ohlc,
+                    tag=rule['tag'].translate(str.maketrans("", "", "*_~><`[]()")),  # 转义特殊字符
+                )
+                res = await telegram_broadcast(msg=msg)
+                rule['_invoked'] = True  # 标记为已触发
+                logger.info(f"Telegram 消息发送结果已处理 {res}")
             else:
                 logger.debug(f"规则未触发: {rule['name']} {quote.symbol} @ {ohlc}")
 
 
-    def check_rules(self, quotes: List[QuoteOHLC]):
+    async def check_rules(self, quotes: List[QuoteOHLC]):
         # 检查每个行情数据是否触发对应规则
         for quote in quotes:
             if quote.symbol in self._symbols:
-                self.eval_rules_trigger(self._rules[quote.symbol], quote)
+                await self.eval_rules_trigger(self._rules[quote.symbol], quote)
                 

@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-27 20:55:11
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-10-30 08:34:28
+LastEditTime: 2025-11-06 12:04:51
 FilePath: /miaosuan/backend.py
 Description: 
 
@@ -44,14 +44,14 @@ async def lifespan(app: FastAPI):
     # 启动所有引擎
     manager.start_all()
     scheduler.add_job(update_rule_of_equities, "cron", 
-                    day_of_week="0-4", # 每周一到周五
-                    hour=settings.CRON_HOUR+1, 
+                    day_of_week="0-6",
+                    hour=7, 
                     minute=0,
                     id="rule_daily")
     scheduler.add_job(manager.daily_all, "cron", 
-                    day_of_week="0-6", # 每周一到周日
-                    hour=0, 
-                    minute=0,
+                    day_of_week="0-6", 
+                    hour=settings.CRON_HOUR, 
+                    minute=settings.CRON_MINUTE,
                     id="engines_daily")
     scheduler.start()
     yield

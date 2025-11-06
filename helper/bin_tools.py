@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-01 10:23:51
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 21:16:29
-FilePath: /miaosuan2/helper/bin_tools.py
+LastEditTime: 2025-11-06 10:02:17
+FilePath: /miaosuan/helper/bin_tools.py
 Description: QLib BIN文件工具
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -80,9 +80,10 @@ def load_equity_quote(symbol: str, start_date: date, end_date: date) -> list:
         instruments=[ft_name], 
         fields=fields,                 # ⭐ 一次性取所有字段
         start_time=start_date, 
-        end_time=end_date
+        end_time=end_date,
+        disk_cache=0                # ⭐ 关闭磁盘缓存，避免重复读取同一文件
     )
-    if df is None or not isinstance(df, pd.DataFrame):
+    if df is None or not isinstance(df, pd.DataFrame) or len(df) == 0:
         return res
     df = df.replace({float('nan'): None}).reset_index()
     df['date'] = df['datetime'].dt.date
