@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-10-31 21:17:00
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-11-06 13:36:22
+LastEditTime: 2025-11-07 08:06:10
 FilePath: /miaosuan/services/mss_qianji/ta_hly.py
 Description: 
 
@@ -435,6 +435,7 @@ def _plot_ta_hly(df: pd.DataFrame, symbol: str, forecast_df: pd.DataFrame) -> go
     return fig
 
 async def ta_hly_analysis(symbol: str, span: int = 100, n_forecast: int = 5):
+    logger.debug(f"HLY分析: {symbol}")
     df = _prepare_ta_hly(symbol, span)
     if df is None or len(df) == 0:
         logger.error(f"无法准备技术指标数据: {symbol}")

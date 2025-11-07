@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-24 08:47:24
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-11-06 13:15:14
+LastEditTime: 2025-11-07 08:45:17
 FilePath: /miaosuan/services/mss_diting/quote_futu.py
 Description: Futu行情引擎
 
@@ -46,6 +46,7 @@ class FutuEngine(BaseQuoteEngine):
     
     def _subscribe(self):
         if self._symbols and self._ctx:
+            self._ctx.unsubscribe_all()  # 取消所有订阅
             sub_list = list(self._symbols)
             ret, err = self._ctx.subscribe(sub_list, [SubType.QUOTE])
             if ret == 0:

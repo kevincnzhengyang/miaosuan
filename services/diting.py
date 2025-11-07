@@ -2,8 +2,8 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-08-23 12:33:59
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-09-12 20:34:46
-FilePath: /miaosuan2/services/diting.py
+LastEditTime: 2025-11-07 08:25:02
+FilePath: /miaosuan/services/diting.py
 Description: API模式
 
 Copyright (c) 2025 by ${git_name_email}, All Rights Reserved. 
@@ -13,7 +13,10 @@ from loguru import logger
 from fastapi import APIRouter
 
 from localdb.db_diting import *
-from .mss_diting.quote_manager import manager
+from services.mss_diting.quote_manager import manager
+from services.mss_qianji.ta_daily import ta_daily_analysis
+from services.mss_qianji.qtr_abnormal import update_rule_of_equities
+from services.mss_diting.quote_manager import manager
 
 
 router = APIRouter(
@@ -74,3 +77,18 @@ def get_triggers_by_rule_api(rule_id: int):
 def engine_status_api():
     status = manager.status()
     return status
+
+@router.get("/daily/ta")
+async def dailay_ta():
+    await ta_daily_analysis()
+    return {"status":"ok"} 
+
+@router.get("/daily/rules/update")
+def dailay_rule_update():
+    update_rule_of_equities()
+    return {"status":"ok"} 
+
+@router.get("/daily/engine")
+async def dailay_engine():
+    await manager.daily_all()
+    return {"status":"ok"} 

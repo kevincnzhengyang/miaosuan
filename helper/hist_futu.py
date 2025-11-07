@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-09-01 21:06:32
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-11-06 12:04:08
+LastEditTime: 2025-11-07 08:36:46
 FilePath: /miaosuan/helper/hist_futu.py
 Description: 
 
@@ -64,9 +64,9 @@ def _update_equity(e: Equity, manager: IndicatorManager, ctx: OpenQuoteContext):
         # 周末取前一个交易日
         day_diff = day - 4
         today = (datetime.today() - timedelta(days=day_diff)).date()
-    elif datetime.now().time() < time(17, 0, 0):
-        # 交易日17点前，取前一个交易日
-        today = (datetime.today() - timedelta(days=1)).date()
+    # elif datetime.now().time() < time(17, 0, 0):
+    #     # 交易日17点前，取前一个交易日
+    #     today = (datetime.today() - timedelta(days=1)).date()
     else:
         # 交易日17点后，取当天
         today = datetime.today().date()
