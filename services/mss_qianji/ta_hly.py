@@ -2,7 +2,7 @@
 Author: kevincnzhengyang kevin.cn.zhengyang@gmail.com
 Date: 2025-10-31 21:17:00
 LastEditors: kevincnzhengyang kevin.cn.zhengyang@gmail.com
-LastEditTime: 2025-11-07 08:06:10
+LastEditTime: 2025-11-11 10:38:09
 FilePath: /miaosuan/services/mss_qianji/ta_hly.py
 Description: 
 
@@ -214,9 +214,13 @@ def _gbm_simulate(series, n_forecast=5, n_sim=5000):
             S_t = S_t * np.exp((mu - 0.5 * sigma**2) + sigma * eps[t])
             path[t] = S_t
         sims[i] = path
-    lower = np.quantile(sims, 0.05, axis=0)
+    # 用路径方差反映不确定性增长
+    # lower = np.quantile(sims, 0.05, axis=0)
+    # upper = np.quantile(sims, 0.95, axis=0)
     median = np.median(sims, axis=0)
-    upper = np.quantile(sims, 0.95, axis=0)
+    path_std = np.std(sims, axis=0)
+    upper = median + 1.65 * path_std
+    lower = median - 1.65 * path_std
     idx = pd.bdate_range(series.index[-1] + pd.Timedelta(days=1), periods=n_forecast)
     return pd.Series(median, idx), pd.Series(lower, idx), pd.Series(upper, idx)
 
@@ -235,24 +239,48 @@ def _quantile_regression_forecast(series, n_forecast=5):
     y = df_feat['y']
     sc = StandardScaler()
     Xs = sc.fit_transform(X)
-    X_pred = Xs[-n_forecast:]
-    def _fit(alpha):
-        model = GradientBoostingRegressor(loss='quantile', alpha=alpha, n_estimators=200, max_depth=3)
-        model.fit(Xs[:-n_forecast], y[:-n_forecast])
-        return model.predict(X_pred)
-    q05 = _fit(0.05)
-    q50 = _fit(0.5)
-    q95 = _fit(0.95)
-    idx = pd.bdate_range(series.index[-1] + pd.Timedelta(days=1), periods=n_forecast)
-    return pd.Series(q50, idx), pd.Series(q05, idx), pd.Series(q95, idx)
+    # 改为递推预测
+    X_train = Xs
+    y_train = y.to_numpy(dtype=float)
+    models = {a: GradientBoostingRegressor(loss='quantile', alpha=a, n_estimators=200, max_depth=3)
+              for a in [0.05, 0.5, 0.95]}
+    for m in models.values():
+        m.fit(X_train, y_train)
+    last_row = df_feat.iloc[-1:].copy()
+    preds = {a: [] for a in models}
+    for i in range(n_forecast):
+        feat = _make_features(pd.concat([series, last_row['y']]))
+        Xf = sc.transform(feat.drop(columns=['y']).iloc[[-1]])
+        for a, m in models.items():
+            y_pred = m.predict(Xf)[0]
+            preds[a].append(y_pred)
+        # 滚动加入新预测
+        new_y = pd.Series([preds[0.5][-1]], index=[series.index[-1] + pd.Timedelta(days=i+1)])
+        series = pd.concat([series, new_y])
+    idx = pd.bdate_range(series.index[-n_forecast], periods=n_forecast)
+    return pd.Series(preds[0.5], idx), pd.Series(preds[0.05], idx), pd.Series(preds[0.95], idx)
+    # 本质是历史重放，废止
+    # X_pred = Xs[-n_forecast:]
+    # def _fit(alpha):
+    #     model = GradientBoostingRegressor(loss='quantile', alpha=alpha, n_estimators=200, max_depth=3)
+    #     model.fit(Xs[:-n_forecast], y[:-n_forecast])
+    #     return model.predict(X_pred)
+    # q05 = _fit(0.05)
+    # q50 = _fit(0.5)
+    # q95 = _fit(0.95)
+    # idx = pd.bdate_range(series.index[-1] + pd.Timedelta(days=1), periods=n_forecast)
+    # return pd.Series(q50, idx), pd.Series(q05, idx), pd.Series(q95, idx)
 
 def _ensemble_forecast(*methods):
     all_means, all_lows, all_ups = zip(*methods)
     idx = all_means[0].index
     df = pd.DataFrame(index=idx)
     df['point'] = np.mean(np.column_stack([m.values for m in all_means]), axis=1)
-    df['lower'] = np.max(np.column_stack([l.values for l in all_lows]), axis=1)
-    df['upper'] = np.min(np.column_stack([u.values for u in all_ups]), axis=1)
+    # 改为“分布平均”，而不是“交集”
+    # df['lower'] = np.max(np.column_stack([l.values for l in all_lows]), axis=1)
+    # df['upper'] = np.min(np.column_stack([u.values for u in all_ups]), axis=1)
+    df['lower'] = np.mean(np.column_stack([l.values for l in all_lows]), axis=1)
+    df['upper'] = np.mean(np.column_stack([u.values for u in all_ups]), axis=1)
     return df
 
 def _forecast_next_week(df, n_forecast=5):
